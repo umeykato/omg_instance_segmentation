@@ -139,7 +139,7 @@ def growth_wheat_someage():
     adel = AdelWheat(nsect=nsect, nplants=1, seed=2)
 
     # save_dir = './obj'
-    save_dir = '../../datasets/oomugi_blender/dataset_ver3/obj'
+    save_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/obj'
     makeDirectory(save_dir)
 
     for age in range(100, 1100, 100):
