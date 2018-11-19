@@ -138,7 +138,8 @@ def growth_wheat_someage():
     nsect = 1 #the number of element per leaf
     adel = AdelWheat(nsect=nsect, nplants=1, seed=2)
 
-    save_dir = './obj'
+    # save_dir = './obj'
+    save_dir = '../../datasets/oomugi_blender/dataset_ver3/obj'
     makeDirectory(save_dir)
 
     for age in range(100, 1100, 100):
@@ -174,4 +175,4 @@ def growth_wheat_someage():
 
 
 if __name__=='__main__':
-    pass
+    growth_wheat_someage()
