@@ -44,8 +44,8 @@ def calcPosition(image_path):
 def main():
     # root_path = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/img'
     # save_path = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/ply_render2d'
-    root_path = '/home/demo/document/ykato_git/datasets/omg_instance/segmentation/dataset_ver3/img'
-    save_path = '/home/demo/document/ykato_git/datasets/omg_instance/segmentation/dataset_ver3/ply_render2d'
+    root_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/img'
+    save_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/ply_render2d'
 
     for age in range(100, 1100, 100):
         root_dir = root_path + '/leaf_age{}'.format(age)

@@ -5,8 +5,22 @@ from PIL import Image
 from sklearn.cluster import KMeans
 import csv
 import colorsys
+import argparse
 
 def main():
+    parser = argparse.ArgumentParser(
+                prog='segment_instance5_from_dataset_ver2',
+                usage='create instance image',
+                description='description',
+                epilog='end',
+                add_help=True,
+                )
+
+    parser.add_argument('--start', '-S', type=int, default=100,
+                        help='select start age')
+
+    args = parser.parse_args()
+
     # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
     root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
 
@@ -14,9 +28,9 @@ def main():
     save_path = root + '/dataset_SemInsSpline/instance_segment'
 
 
-    start = 100
+    start = args.start
     for age in range(start, start+100, 100):
-        for location in range(3,5):
+        for location in range(5):
             for img_num in range(100):
                 fname = read_dir + '/age{}location{}_{:04}.png'.format(age, location, img_num)
                 save_dir = save_path + '/age{}location{}_{:04}'.format(age, location, img_num)
