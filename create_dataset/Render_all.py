@@ -112,7 +112,7 @@ def render2color(obj_fname, save_dir):
         bpy.ops.texture.new('INVOKE_DEFAULT')
         # bpy.ops.image.open(filepath='C:/Users/matsuoka/Desktop/sub.jpg')
         # tex1.image = bpy.data.images.load('C:/Users/matsuoka/Desktop/ko.png')
-        tex1.image = bpy.data.images.load('C:/Program Files/Blender Foundation/Blender/ko.PNG')
+        tex1.image = bpy.data.images.load(os.getcwd() + '/ko.PNG')
         mat1.texture_slots.add()
         mat1.texture_slots[0].texture = tex1
         bpy.context.scene.objects.active = obj
@@ -133,7 +133,7 @@ def render2color(obj_fname, save_dir):
         bpy.ops.texture.new('INVOKE_DEFAULT')
         # bpy.ops.image.open(filepath='C:/Users/matsuoka/Desktop/sub.jpg')
         # tex2.image = bpy.data.images.load('C:/Users/matsuoka/Desktop/ko.png')
-        tex2.image = bpy.data.images.load('C:/Program Files/Blender Foundation/Blender/ko.PNG')
+        tex2.image = bpy.data.images.load(os.getcwd() + '/ko.PNG')
         mat2.texture_slots.add()
         mat2.texture_slots[0].texture = tex2
         bpy.context.scene.objects.active = obj1
@@ -228,7 +228,7 @@ def render2semantic(obj_fname, save_dir):
         bpy.ops.texture.new('INVOKE_DEFAULT')
         # bpy.ops.image.open(filepath='C:/Users/matsuoka/Desktop/sub.jpg')
         # tex1.image = bpy.data.images.load('C:/Users/matsuoka/Desktop/ko.png')
-        tex1.image = bpy.data.images.load('C:/Program Files/Blender Foundation/Blender/ko.PNG')
+        tex1.image = bpy.data.images.load(os.getcwd() + '/ko.PNG')
         mat1.texture_slots.add()
         mat1.texture_slots[0].texture = tex1
         bpy.context.scene.objects.active = obj
@@ -249,7 +249,7 @@ def render2semantic(obj_fname, save_dir):
         bpy.ops.texture.new('INVOKE_DEFAULT')
         # bpy.ops.image.open(filepath='C:/Users/matsuoka/Desktop/sub.jpg')
         # tex2.image = bpy.data.images.load('C:/Users/matsuoka/Desktop/ko.png')
-        tex2.image = bpy.data.images.load('C:/Program Files/Blender Foundation/Blender/ko.PNG')
+        tex2.image = bpy.data.images.load(os.getcwd() + '/ko.PNG')
         mat2.texture_slots.add()
         mat2.texture_slots[0].texture = tex2
         bpy.context.scene.objects.active = obj1
@@ -273,7 +273,7 @@ def render2semantic(obj_fname, save_dir):
         bpy.ops.texture.new('INVOKE_DEFAULT')
         # bpy.ops.image.open(filepath='C:/Users/matsuoka/Desktop/sub.jpg')
         # tex1.image = bpy.data.images.load('C:/Users/matsuoka/Desktop/green.png')
-        tex1.image = bpy.data.images.load('C:/Program Files/Blender Foundation/Blender/green.png')
+        tex1.image = bpy.data.images.load(os.getcwd() + '/green.png')
         mat1.texture_slots.add()
         mat1.texture_slots[0].texture = tex1
         bpy.context.scene.objects.active = obj
@@ -294,7 +294,7 @@ def render2semantic(obj_fname, save_dir):
         bpy.ops.texture.new('INVOKE_DEFAULT')
         # bpy.ops.image.open(filepath='C:/Users/matsuoka/Desktop/sub.jpg')
         # tex2.image = bpy.data.images.load('C:/Users/matsuoka/Desktop/blue.png')
-        tex2.image = bpy.data.images.load('C:/Program Files/Blender Foundation/Blender/blue.png')
+        tex2.image = bpy.data.images.load(os.getcwd() + '/blue.png')
         mat2.texture_slots.add()
         mat2.texture_slots[0].texture = tex2
         bpy.context.scene.objects.active = obj1

@@ -7,7 +7,8 @@ import csv
 import colorsys
 
 def main():
-    root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
+    # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
+    root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
 
     read_dir = root + '/dataset_SemInsSpline/instance'
     save_path = root + '/dataset_SemInsSpline/instance_segment'
