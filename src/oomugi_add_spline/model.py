@@ -90,7 +90,7 @@ class outconv(nn.Module):
         return x
 
 class outlinear(nn.Module):
-    def __init__(self, in_ch, out_ch):
+    def __init__(self, in_ch, out_ch, img_size=256):
         super(outlinear, self).__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, 1, 1),
@@ -98,7 +98,8 @@ class outlinear(nn.Module):
             nn.ReLU(inplace=True),
         )
         self.linear = nn.Sequential(
-            nn.Linear(256*256, 4096),
+            # nn.Linear(256*256, 4096),
+            nn.Linear(img_size*img_size, 4096),
             nn.ReLU(inplace=True),
             # nn.Linear(4096, 4096),
             # nn.ReLU(inplace=True),
@@ -114,7 +115,7 @@ class outlinear(nn.Module):
         return x
 
 class UNet(nn.Module):
-    def __init__(self):
+    def __init__(self, img_size=256):
         super(UNet, self).__init__()
         # self.inc = inconv(1, 64)
         self.inc = inconv(3, 64)
@@ -129,7 +130,7 @@ class UNet(nn.Module):
         self.sem_out = outconv(64, 2)
         # self.ins_out = outconv(64, 16)
         self.ins_out = outconv(64, 60)
-        self.spline_out = outlinear(64, 60 * 8 * 2)
+        self.spline_out = outlinear(64, 60 * 8 * 2, img_size)
 
     def forward(self, x):
         x1 = self.inc(x)

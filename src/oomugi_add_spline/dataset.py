@@ -9,13 +9,13 @@ from torch.utils.data import DataLoader
 
 
 class SSSDataset(Dataset):
-    def __init__(self, train, n_sticks=8, data_size=5000):
+    def __init__(self, train, n_sticks=8, data_size=5000, img_size=256):
         super().__init__()
         self.train = train
         self.n_sticks = n_sticks
         self.data_size = data_size
-        self.height = 256
-        self.width = 256
+        self.height = img_size
+        self.width = img_size
 
         # #ver1.0
         # self.img_path = 'I:/ykato_git/datasets/oomugi_blender/train/o/20/'
