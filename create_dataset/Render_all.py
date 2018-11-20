@@ -5,9 +5,11 @@
 import bpy
 import os
 import math
+import sys
 #import texture
 
 import csv
+sys.path.append(os.getcwd())
 import camera
 import copy
 
@@ -558,7 +560,8 @@ def getValue(key, items):
     return values[0] if values else None
 
 def main():
-    root_dir = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
+    # root_dir = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
+    root_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
     obj_dir = root_dir + '/obj'
     ply_dir = root_dir + '/ply_render3d'
     img_dir = root_dir + '/img'

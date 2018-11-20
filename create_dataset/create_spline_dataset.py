@@ -103,11 +103,21 @@ def main():
     # adelWheat.growth_wheat_someage()
 
     # age
+    root = '/home/demo/document/ykato_git'
+    repository = '/omg_instance_segmentation'
+    repository_path = root + repository
+    result_path = root + '/result' + repository
+    dataset_path = root + '/datasets' + repository + '/dataset_ver3'
+
+    dataset_ver = '3'
+    parts = 'leaf'
+
     for i in range(100, 1100, 100):
         # file num
-        for j in range(len(os.listdir('./obj/leaf_age{}'.format(i)))):
-            fname = './obj/leaf_age{}/{}.obj'.format(i, j)
-            save_dir = './ply_render3d/leaf_age{}'.format(i)
+        # for j in range(len(os.listdir('./obj/leaf_age{}'.format(i)))):
+        for j in range(len(os.listdir(dataset_path + '/obj/{}_age{}'.format(parts, i)))):
+            fname = dataset_path + '/obj/leaf_age{}/{}.obj'.format(i, j)
+            save_dir = dataset_path + '/ply_render3d/leaf_age{}'.format(i)
             try:
                 os.mkdir(save_dir)
             except:
