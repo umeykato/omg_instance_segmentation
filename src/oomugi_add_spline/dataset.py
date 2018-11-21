@@ -30,8 +30,8 @@ class SSSDataset(Dataset):
         
         # ver3.0
         # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
-        # root = '../../../datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
-        root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+        root = '../../datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+        # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
         self.img_path = root + '/image/'
         self.sem_path = root + '/semantic/'
         self.ins_path = root + '/instance_segment/'
