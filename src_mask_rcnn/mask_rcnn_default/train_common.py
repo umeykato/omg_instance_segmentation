@@ -124,7 +124,7 @@ def train(args, train_data, test_data, evaluator_type):
 
     # lr: 0.00125 * 8 = 0.01  in original
     # args.lr = 0.00125 * args.batch_size
-    args.lr = 0.0001 * args.batch_size
+    args.lr = 0.00002 * args.batch_size
     args.weight_decay = 0.0001
 
     # lr / 10 at 120k iteration with

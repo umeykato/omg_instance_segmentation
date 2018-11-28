@@ -112,17 +112,35 @@ class MaskRCNNTrainChain(chainer.Chain):
 
         batch_size, _, H, W = imgs.shape
         img_size = (H, W)
-
+        # print('2')
         features = self.mask_rcnn.extractor(imgs)
+        # print('2.5')
+        
+        # C:\Users\y_kato\Anaconda3\envs\chainer\lib\site-packages\chainercv\links\model/faster_rcnn\utils\loc2bbox.py:65: RuntimeWarning: overflow encountered in multiply
+        # h = xp.exp(dh) * src_height[:, xp.newaxis]
+        # C:\Users\y_kato\Anaconda3\envs\chainer\lib\site-packages\chainercv\links\model/faster_rcnn\utils\loc2bbox.py:66: RuntimeWarning: overflow encountered in multiply
+        # w = xp.exp(dw) * src_width[:, xp.newaxis]
+
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.mask_rcnn.rpn(
             features, img_size, scales)
-
+        # print('2.9')
         batch_indices = range(batch_size)
         sample_rois = []
         sample_roi_indices = []
         gt_roi_locs = []
         gt_roi_labels = []
         gt_roi_masks = []
+        # print('3')
+        
+        # C:\Users\y_kato\Anaconda3\envs\chainer\lib\site-packages\chainercv\utils/bbox/bbox_iou.py:43: RuntimeWarning: invalid value encountered in true_divide
+        # return area_i / (area_a[:, None] + area_b - area_i)
+        # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:132: RuntimeWarning: invalid value encountered in greater_equal
+        # pos_index = np.where(max_iou >= self.pos_iou_thresh)[0]
+        # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:140: RuntimeWarning: invalid value encountered in less
+        # neg_index = np.where((max_iou < self.neg_iou_thresh_hi) &
+        # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:141: RuntimeWarning: invalid value encountered in greater_equal
+        # (max_iou >= self.neg_iou_thresh_lo))[0]
+
         for batch_index, bbox, label, mask in \
                 zip(batch_indices, bboxes, labels, masks):
             roi = rois[roi_indices == batch_index]
@@ -138,24 +156,29 @@ class MaskRCNNTrainChain(chainer.Chain):
             gt_roi_labels.append(gt_roi_label)
             gt_roi_masks.append(gt_roi_mask)
             del gt_roi_loc, gt_roi_label, gt_roi_mask
+        # print('3.8')
         sample_rois = self.xp.concatenate(sample_rois, axis=0)
         sample_roi_indices = self.xp.concatenate(sample_roi_indices, axis=0)
         gt_roi_locs = self.xp.concatenate(gt_roi_locs, axis=0)
         gt_roi_labels = self.xp.concatenate(gt_roi_labels, axis=0)
         gt_roi_masks = self.xp.concatenate(gt_roi_masks, axis=0)
-
+        # print('3.9')
         roi_cls_locs, roi_scores, roi_masks = self.mask_rcnn.head(
             features, sample_rois, sample_roi_indices)
-
+        # print('4')
         # RPN losses
         gt_rpn_locs = []
         gt_rpn_labels = []
         for bbox, rpn_loc, rpn_score in zip(bboxes, rpn_locs, rpn_scores):
+            # print(bbox)
+            # print(rpn_loc)
+            # print(rpn_score)
             gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(
                 bbox, anchor, img_size)
             gt_rpn_locs.append(gt_rpn_loc)
             gt_rpn_labels.append(gt_rpn_label)
             del gt_rpn_loc, gt_rpn_label
+
         gt_rpn_locs = self.xp.concatenate(gt_rpn_locs, axis=0)
         gt_rpn_labels = self.xp.concatenate(gt_rpn_labels, axis=0)
         rpn_locs = F.concat(rpn_locs, axis=0)

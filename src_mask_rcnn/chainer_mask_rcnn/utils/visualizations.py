@@ -42,6 +42,8 @@ def draw_instance_bboxes(img, bboxes, labels, n_class, masks=None,
 
     if captions is not None:
         captions = np.asarray(captions)
+        # print(captions.shape)
+        # print(bboxes.shape)
         assert isinstance(captions, np.ndarray)
         assert captions.shape[0] == bboxes.shape[0]
 

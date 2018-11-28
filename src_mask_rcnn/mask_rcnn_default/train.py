@@ -38,7 +38,7 @@ def main():
     args.dataset = 'original'
     train_data = dataset.OomugiDataset()
     test_data = dataset.OomugiDataset()
-    args.class_names = ['leaf', 'back']
+    args.class_names = ['back', 'leaf']
 
     # Model.
     args.min_size = 800

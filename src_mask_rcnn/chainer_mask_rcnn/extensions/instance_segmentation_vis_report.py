@@ -72,9 +72,14 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
             pred_score = pred_score[keep]
 
             captions = []
+            # print(pred_score)
+            # print(label_names)
+            # print(pred_label)
+            # print(label_names[pred_label+1])
             for p_score, l_name in zip(pred_score,
                                        label_names[pred_label + 1]):
                 caption = '{:s} {:.1%}'.format(l_name, p_score)
+                captions.append(caption)
             pred_viz = utils.draw_instance_bboxes(
                 img, pred_bbox, pred_label + 1, n_class=n_class,
                 masks=pred_mask, captions=captions, bg_class=0)

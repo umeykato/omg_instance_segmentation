@@ -36,7 +36,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
     def __len__(self):
         # return len(self.img_names)
-        return 10
+        return 40
 
     def get_example(self, i):
         fname = self.img_names[i]
