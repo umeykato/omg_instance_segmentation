@@ -72,12 +72,20 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
 
         # 各instance画像のbboxを求める
+        # bboxをsplineの制御点に変える
         bboxes = []
         for num in range(ins_num):
             bbox = self._mask_to_bbox(ins[num])
             bboxes.append(bbox)
         bboxes = np.array(bboxes, dtype=np.float32)
         # print(bboxes.shape)
+
+        points = []
+        points_x = []
+        points_y = []
+        for num in range(ins_num):
+            pass
+
 
         labels = np.ones((ins_num), dtype=np.int32)
 

@@ -27,45 +27,86 @@ def main():
     read_dir = root + '/dataset_SemInsSpline/instance'
     save_path = root + '/dataset_SemInsSpline/instance_segment'
 
+    def instance_segment(age, location, img_num):
+        fname = read_dir + '/age{}location{}_{:04}.png'.format(age, location, img_num)
+        save_dir = save_path + '/age{}location{}_{:04}'.format(age, location, img_num)
+        print(save_dir)
+        try:
+            os.mkdir(save_dir)
+        except:
+            pass
+
+        ins = cv2.imread(fname, 1)
+        color_list = np.array([[255, 255, 255]])
+
+        # 色のリストを作成
+        for h in range(ins.shape[0]):
+            for w in range(ins.shape[1]):
+                if not np.allclose(ins[h, w], [255, 255, 255]): #白色[255,255,255]であるか比較
+
+                    flag = 0
+                    for l in range(color_list.shape[0]):         #カラーリストを探索
+                        if np.allclose(ins[h, w], color_list[l]):#カラーリストに存在すればフラグを１にする
+                            flag = 1
+
+                    if flag == 0:#フラグが１であればカラーリストに追加
+                        color_list = np.append(color_list, [ins[h, w]], axis=0)
+
+        #カラーリストの色ごとの画像を保存
+        for l in range(color_list.shape[0]):
+            a = np.where(ins[:,:,0] == color_list[l,0],True,False)
+            b = np.where(ins[:,:,1] == color_list[l,1],True,False)
+            c = np.where(ins[:,:,2] == color_list[l,2],True,False)
+            d = a*b*c
+            
+            img = d.astype(np.uint8) * 255
+            
+            cv2.imwrite(save_dir + '/{}.png'.format(l), img)
 
     start = args.start
     for age in range(start, start+100, 100):
         for location in range(5):
             for img_num in range(100):
-                fname = read_dir + '/age{}location{}_{:04}.png'.format(age, location, img_num)
-                save_dir = save_path + '/age{}location{}_{:04}'.format(age, location, img_num)
-                print(save_dir)
-                try:
-                    os.mkdir(save_dir)
-                except:
-                    pass
+                instance_segment(age, location, img_num)
 
-                ins = cv2.imread(fname, 1)
-                color_list = np.array([[255, 255, 255]])
+    # start = args.start
+    # for age in range(start, start+100, 100):
+    #     for location in range(5):
+    #         for img_num in range(100):
+    #             fname = read_dir + '/age{}location{}_{:04}.png'.format(age, location, img_num)
+    #             save_dir = save_path + '/age{}location{}_{:04}'.format(age, location, img_num)
+    #             print(save_dir)
+    #             try:
+    #                 os.mkdir(save_dir)
+    #             except:
+    #                 pass
 
-                # 色のリストを作成
-                for h in range(ins.shape[0]):
-                    for w in range(ins.shape[1]):
-                        if not np.allclose(ins[h, w], [255, 255, 255]): #白色[255,255,255]であるか比較
+    #             ins = cv2.imread(fname, 1)
+    #             color_list = np.array([[255, 255, 255]])
 
-                            flag = 0
-                            for l in range(color_list.shape[0]):         #カラーリストを探索
-                                if np.allclose(ins[h, w], color_list[l]):#カラーリストに存在すればフラグを１にする
-                                    flag = 1
+    #             # 色のリストを作成
+    #             for h in range(ins.shape[0]):
+    #                 for w in range(ins.shape[1]):
+    #                     if not np.allclose(ins[h, w], [255, 255, 255]): #白色[255,255,255]であるか比較
 
-                            if flag == 0:#フラグが１であればカラーリストに追加
-                                color_list = np.append(color_list, [ins[h, w]], axis=0)
+    #                         flag = 0
+    #                         for l in range(color_list.shape[0]):         #カラーリストを探索
+    #                             if np.allclose(ins[h, w], color_list[l]):#カラーリストに存在すればフラグを１にする
+    #                                 flag = 1
 
-                #カラーリストの色ごとの画像を保存
-                for l in range(color_list.shape[0]):
-                    a = np.where(ins[:,:,0] == color_list[l,0],True,False)
-                    b = np.where(ins[:,:,1] == color_list[l,1],True,False)
-                    c = np.where(ins[:,:,2] == color_list[l,2],True,False)
-                    d = a*b*c
+    #                         if flag == 0:#フラグが１であればカラーリストに追加
+    #                             color_list = np.append(color_list, [ins[h, w]], axis=0)
+
+    #             #カラーリストの色ごとの画像を保存
+    #             for l in range(color_list.shape[0]):
+    #                 a = np.where(ins[:,:,0] == color_list[l,0],True,False)
+    #                 b = np.where(ins[:,:,1] == color_list[l,1],True,False)
+    #                 c = np.where(ins[:,:,2] == color_list[l,2],True,False)
+    #                 d = a*b*c
                     
-                    img = d.astype(np.uint8) * 255
+    #                 img = d.astype(np.uint8) * 255
                     
-                    cv2.imwrite(save_dir + '/{}.png'.format(l), img)
+    #                 cv2.imwrite(save_dir + '/{}.png'.format(l), img)
 
 if __name__=='__main__':
     

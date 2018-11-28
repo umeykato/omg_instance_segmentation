@@ -35,6 +35,7 @@ def main():
     # )
     # args.class_names = tuple(test_data.class_names.tolist())
 
+    # datasetをオオムギのやつに変える
     args.dataset = 'original'
     train_data = dataset.OomugiDataset()
     test_data = dataset.OomugiDataset()

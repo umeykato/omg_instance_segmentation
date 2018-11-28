@@ -17,7 +17,7 @@ from chainer.training import extensions
 import fcn
 import numpy as np
 
-import chainer_mask_rcnn as cmr
+import chainer_spline_rcnn as cmr
 
 
 def parse_args():
@@ -114,6 +114,7 @@ def train(args, train_data, test_data, evaluator_type):
         chainer.cuda.get_device_from_id(args.gpu).use()
         device = args.gpu
 
+    # save directory setting
     args.seed = 0
     now = datetime.datetime.now()
     args.timestamp = now.isoformat()
@@ -122,6 +123,7 @@ def train(args, train_data, test_data, evaluator_type):
 
     args.batch_size = args.batch_size_per_gpu * args.n_gpu
 
+    # learning rage，weight_decay setting
     # lr: 0.00125 * 8 = 0.01  in original
     # args.lr = 0.00125 * args.batch_size
     args.lr = 0.0001 * args.batch_size
@@ -157,6 +159,7 @@ def train(args, train_data, test_data, evaluator_type):
             'Unsupported initializer: {}'.format(args.initializer)
         )
 
+    # select BackBorn　VGG16 or ResNet101
     if args.model == 'vgg16':
         mask_rcnn = cmr.models.MaskRCNNVGG16(
             n_fg_class=len(args.class_names),
@@ -187,6 +190,7 @@ def train(args, train_data, test_data, evaluator_type):
     if args.multi_node or args.gpu >= 0:
         model.to_gpu()
 
+    # optimizer setting
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     if args.multi_node:
         optimizer = chainermn.create_multi_node_optimizer(optimizer, comm)
@@ -203,6 +207,7 @@ def train(args, train_data, test_data, evaluator_type):
             if isinstance(link, cmr.links.AffineChannel2D):
                 link.disable_update()
 
+    # dataset transform
     train_data = chainer.datasets.TransformDataset(
         train_data,
         cmr.datasets.MaskRCNNTransform(mask_rcnn),
@@ -230,6 +235,7 @@ def train(args, train_data, test_data, evaluator_type):
         shuffle=False,
     )
 
+    # updater setting
     converter = functools.partial(
         cmr.datasets.concat_examples,
         padding=0,
@@ -244,12 +250,14 @@ def train(args, train_data, test_data, evaluator_type):
         converter=converter,
     )
 
+    # trainer setting
     trainer = training.Trainer(
         updater,
         (args.max_epoch, 'epoch'),
         out=args.out,
     )
 
+    # extensions setting
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1),
         trigger=training.triggers.ManualScheduleTrigger(
