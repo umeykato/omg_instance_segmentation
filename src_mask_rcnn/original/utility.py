@@ -35,8 +35,8 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
 
     def __len__(self):
-        return len(self.img_names)
-        # return 40
+        # return len(self.img_names)
+        return 10
 
     def get_example(self, i):
         fname = self.img_names[i]
@@ -72,12 +72,20 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
 
         # 各instance画像のbboxを求める
+        # bboxをsplineの制御点に変える
         bboxes = []
         for num in range(ins_num):
             bbox = self._mask_to_bbox(ins[num])
             bboxes.append(bbox)
         bboxes = np.array(bboxes, dtype=np.float32)
         # print(bboxes.shape)
+
+        points = []
+        points_x = []
+        points_y = []
+        for num in range(ins_num):
+            pass
+
 
         labels = np.ones((ins_num), dtype=np.int32)
 
@@ -87,6 +95,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
         example = [bboxes, labels, masks]
 
+        
         return tuple([img] + example)
 
     """
