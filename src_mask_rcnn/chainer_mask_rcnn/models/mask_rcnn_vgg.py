@@ -172,7 +172,7 @@ class VGG16RoIHead(chainer.Chain):
             x, indices_and_rois, self.roi_size, self.roi_size,
             self.spatial_scale, self._pooling_func)
 
-        print(pool.shape)
+        # print(pool.shape)
 
         roi_cls_locs = None
         roi_scores = None

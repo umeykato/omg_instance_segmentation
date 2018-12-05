@@ -120,7 +120,7 @@ class RegionProposalNetwork(chainer.Chain):
         """
         # print('1')
         n, _, hh, ww = x.shape
-        print('n ',n)
+        # print('n ',n)
         # print('2')
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, hh, ww)
@@ -142,9 +142,9 @@ class RegionProposalNetwork(chainer.Chain):
 
         rpn_scores = rpn_scores.reshape((n, -1))
 
-        print("rpn_fg_scores.shape")
-        print(rpn_fg_scores.shape)
-        print(rpn_scores.shape)
+        # print("rpn_fg_scores.shape")
+        # print(rpn_fg_scores.shape)
+        # print(rpn_scores.shape)
 
         # print('5')
         rois = list()
