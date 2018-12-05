@@ -48,7 +48,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
         # print('fname ', fname)
 
-        resize_size = 256
+        resize_size = 500
 
         img = cv2.imread(self.img_path + fname)
         img = cv2.resize(img, (resize_size, resize_size))
