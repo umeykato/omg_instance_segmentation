@@ -28,7 +28,8 @@ def parse_args():
         '--model',
         '-m',
         choices=['vgg16', 'resnet50', 'resnet101'],
-        default='resnet50',
+        default='vgg16',
+        # default='resnet50',
         help='base model',
     )
     parser.add_argument(
@@ -49,7 +50,8 @@ def parse_args():
         '--roi-size',
         '-r',
         type=int,
-        default=14,
+        # default=14,
+        default=7,
         help='roi size',
     )
     parser.add_argument(
@@ -124,7 +126,7 @@ def train(args, train_data, test_data, evaluator_type):
 
     # lr: 0.00125 * 8 = 0.01  in original
     # args.lr = 0.00125 * args.batch_size
-    args.lr = 0.001 * args.batch_size
+    args.lr = 0.00125 * args.batch_size
     args.weight_decay = 0.0001
 
     # lr / 10 at 120k iteration with
@@ -159,7 +161,8 @@ def train(args, train_data, test_data, evaluator_type):
 
     if args.model == 'vgg16':
         mask_rcnn = cmr.models.MaskRCNNVGG16(
-            n_fg_class=len(args.class_names),
+            # n_fg_class=len(args.class_names),
+            n_fg_class=1,
             pretrained_model='imagenet',
             pooling_func=pooling_func,
             anchor_scales=args.anchor_scales,
@@ -186,6 +189,8 @@ def train(args, train_data, test_data, evaluator_type):
     model = cmr.models.MaskRCNNTrainChain(mask_rcnn)
     if args.multi_node or args.gpu >= 0:
         model.to_gpu()
+
+    print(model)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     if args.multi_node:

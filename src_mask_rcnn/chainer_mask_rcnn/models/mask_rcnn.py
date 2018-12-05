@@ -109,6 +109,9 @@ def segm_results(bbox, label, roi_mask, im_h, im_w):
 
 class MaskRCNN(chainer.Chain):
 
+
+            # min_size=600,
+            # max_size=1000,
     def __init__(
             self, extractor, rpn, head,
             mean,

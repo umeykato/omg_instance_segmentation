@@ -105,10 +105,10 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # print('type labels ', type(labels))
         # print(labels.dtype)
 
-        print(img.shape)
-        print(bboxes.shape)
-        print(labels.shape)
-        print(masks.shape)
+        # print(img.shape)
+        # print(bboxes.shape)
+        # print(labels.shape)
+        # print(masks.shape)
 
         if ins_num == 0:
             return self.get_example(i+1)

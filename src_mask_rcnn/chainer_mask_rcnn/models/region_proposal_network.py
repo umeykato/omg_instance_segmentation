@@ -120,9 +120,13 @@ class RegionProposalNetwork(chainer.Chain):
         """
         # print('1')
         n, _, hh, ww = x.shape
+        print('n ',n)
         # print('2')
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, hh, ww)
+
+        n_anchor = anchor.shape[0] // (hh*ww)    #add from DeNA mask rcnn
+
         h = F.relu(self.conv1(x))
         # print('3')
         rpn_locs = self.loc(h)
@@ -130,7 +134,18 @@ class RegionProposalNetwork(chainer.Chain):
         # print('4')
         rpn_scores = self.score(h)
         rpn_scores = rpn_scores.transpose((0, 2, 3, 1))
+
+        #add from DeNA mask rcnn
+        rpn_fg_scores = rpn_scores.reshape((n, hh, ww, n_anchor))[:, :, :, :]
+        rpn_fg_scores = rpn_fg_scores.reshape((n, -1))
+        #
+
         rpn_scores = rpn_scores.reshape((n, -1))
+
+        print("rpn_fg_scores.shape")
+        print(rpn_fg_scores.shape)
+        print(rpn_scores.shape)
+
         # print('5')
         rois = list()
         roi_indices = list()
@@ -142,7 +157,8 @@ class RegionProposalNetwork(chainer.Chain):
             # print(anchor)
             # print(img_size)
             roi = self.proposal_layer(
-                rpn_locs[i].array, rpn_scores[i].array, anchor, img_size,
+                # rpn_locs[i].array, rpn_scores[i].array, anchor, img_size,
+                rpn_locs[i].array, rpn_fg_scores[i].array, anchor, img_size, # add from DeNA mask rcnn
                 scale=scales[i])
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)

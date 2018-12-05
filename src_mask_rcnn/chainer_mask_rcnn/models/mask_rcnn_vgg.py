@@ -17,8 +17,9 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 
-from chainercv.links.model.faster_rcnn.region_proposal_network \
-    import RegionProposalNetwork
+# from chainercv.links.model.faster_rcnn.region_proposal_network \
+#     import RegionProposalNetwork
+from .region_proposal_network import RegionProposalNetwork
 from chainercv.links.model.vgg.vgg16 import VGG16
 from chainercv.utils import download_model
 
@@ -79,6 +80,8 @@ class MaskRCNNVGG16(MaskRCNN):
         extractor.remove_unused()
         rpn = RegionProposalNetwork(
             512, 512,
+            # 512, 1024,
+            # 1024, 512,
             ratios=ratios,
             anchor_scales=anchor_scales,
             feat_stride=self.feat_stride,
@@ -141,7 +144,8 @@ class VGG16RoIHead(chainer.Chain):
         # n_class includes the background
         super(VGG16RoIHead, self).__init__()
         with self.init_scope():
-            self.fc6 = L.Linear(25088, 4096, initialW=vgg_initialW)
+            # self.fc6 = L.Linear(25088, 4096, initialW=vgg_initialW)
+            self.fc6 = L.Linear(512*roi_size*roi_size, 4096, initialW=vgg_initialW)
             self.fc7 = L.Linear(4096, 4096, initialW=vgg_initialW)
             self.cls_loc = L.Linear(4096, n_class * 4, initialW=loc_initialW)
             self.score = L.Linear(4096, n_class, initialW=score_initialW)
@@ -163,9 +167,12 @@ class VGG16RoIHead(chainer.Chain):
         roi_indices = roi_indices.astype(np.float32)
         indices_and_rois = self.xp.concatenate(
             (roi_indices[:, None], rois), axis=1)
+        # 512 512 14 14
         pool = _roi_align_2d_yx(
             x, indices_and_rois, self.roi_size, self.roi_size,
             self.spatial_scale, self._pooling_func)
+
+        print(pool.shape)
 
         roi_cls_locs = None
         roi_scores = None
