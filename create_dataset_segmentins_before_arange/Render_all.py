@@ -5,6 +5,7 @@
 import bpy
 import os
 import math
+import re
 import sys
 #import texture
 
@@ -318,7 +319,7 @@ def render2semantic(obj_fname, save_dir):
     #lamp.location=(0,30,40)
     camera.setCirclePathCamera(2, save_dir)
 
-def render2instance(obj_fname, save_dir):
+def render2instance(leaf_dname, stem_dname, save_dir):
     delete_all()
 
     #Worldに関する設定
@@ -337,6 +338,8 @@ def render2instance(obj_fname, save_dir):
     # lamp.data.type='SUN'
     # lamp.location=(0,40,50)
 
+
+    """
     #objファイルのimport
     # bpy.ops.import_scene.obj(filepath='./plant_obj/original/all/adel900nsect1.obj')
     bpy.ops.import_scene.obj(filepath=obj_fname)
@@ -364,17 +367,55 @@ def render2instance(obj_fname, save_dir):
             print(item.diffuse_color.r)
             writer.writerow([item.diffuse_color.r, item.diffuse_color.g, item.diffuse_color.b])
         f.close()
+    """
 
-    #bpy.ops.import_scene.obj(filepath='E:/share/compare/0/adel900nsect1.obj')
-    sel = bpy.context.selected_objects
-    leaf=sel[:]
+    def import_obj_and_write_color(dname, saturation, sel, type='leaf'):
+        sat = saturation
+        fn = len(os.listdir(dname))
+
+        pattern = '(.*)age(.*)'
+        d = re.search(pattern, dname)
+        age = d.group(2)
+
+        with open(save_dir + '/color_age{}.csv'.format(age), 'a+', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['age', age])
+            writer.writerow(['type', type])
+
+        for i in range(fn):
+            obj_fname = dname + '/' + '{}.obj'.format(i)
+            #objファイルのimport
+            bpy.ops.import_scene.obj(filepath=obj_fname)
+            sel.append(bpy.context.selected_objects[0])
 
 
-    #全要素を代入
-    sel = bpy.context.selected_objects
+            #色のテクスチャ環境作成
+            obj_temp = bpy.context.selected_objects[0]
+            obj_temp.data.materials.clear()
+            mat_temp = bpy.data.materials.new('COLOR')
+            obj_temp.data.materials.append(mat_temp)
 
-    #active?
-    act = bpy.context.active_object
+            #color変更
+            mat_temp.diffuse_color.hsv=(sat*0.1,1.0,0.4)
+            sat+=0.15
+
+            #csv書き込み
+            with open(save_dir + '/color_age{}.csv'.format(age), 'a+', newline='') as f:
+                writer=csv.writer(f)
+                writer.writerow([i, mat_temp.diffuse_color.r, mat_temp.diffuse_color.g, mat_temp.diffuse_color.b])
+
+        return sat
+
+    saturation = 0
+    sel = []
+    print(leaf_dname)
+    print(stem_dname)
+    saturation = import_obj_and_write_color(leaf_dname, saturation, sel, type='leaf')
+    print(sel)
+    print(bpy.data.materials)
+    saturation = import_obj_and_write_color(stem_dname, saturation, sel, type='stem')
+    print(sel)
+    print(bpy.data.materials)
 
     #厚み付け・細分割曲面
     for obj in sel:
@@ -390,10 +431,6 @@ def render2instance(obj_fname, save_dir):
         # bpy.ops.object.editmode_toggle()
         # bpy.ops.uv.smart_project(angle_limit=66, island_margin=0)
 
-    # bpy.ops.import_scene.obj(filepath='./plant_obj/original/all/adel900nsect1.obj')
-    # sel = bpy.context.selected_objects
-    # act = bpy.context.active_object
-
     #厚み付け
     for obj in sel:
         bpy.context.scene.objects.active = obj #sets the obj accessible to bpy.ops
@@ -407,9 +444,6 @@ def render2instance(obj_fname, save_dir):
         # bpy.ops.mesh.uv_texture_add()
         # bpy.ops.object.editmode_toggle()
         # bpy.ops.uv.smart_project(angle_limit=66, island_margin=0)
-
-    sel = bpy.context.selected_objects
-    leaf2=sel[:]
 
     #オブジェクトの回転
     for obj in sel:
@@ -561,7 +595,8 @@ def getValue(key, items):
 
 def main():
     # root_dir = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
-    root_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
+    root_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    # root_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
     obj_dir = root_dir + '/obj'
     ply_dir = root_dir + '/ply_render3d'
     img_dir = root_dir + '/img'
@@ -580,10 +615,13 @@ def main():
 
         # 読み込みファイルの指定
         obj_fname = obj_dir + '/all_age{}.obj'.format(age)
+        leaf_dname = obj_dir + '/leaf_age{}'.format(age)
+        stem_dname = obj_dir + '/stem_age{}'.format(age)
 
         render2color(obj_fname, save_dir)
         render2semantic(obj_fname, save_dir)
-        render2instance(obj_fname, save_dir)
+        # render2instance(obj_fname, save_dir)
+        render2instance(leaf_dname, stem_dname, save_dir)
 
     # spline
     for age in range(100, 1100, 100):

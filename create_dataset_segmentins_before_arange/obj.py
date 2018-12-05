@@ -175,7 +175,7 @@ class Faces(object):
         """ Write the faces in an obj format. """
         gen = izip_longest(self.vindex, self.tindex,self.nindex, fillvalue=None)
         # offset = self.offset
-        offset = 0
+        offset = 1
         # print(offset)
         output.write('g %s \n'%self.name)
         for index, texture, normal in gen:

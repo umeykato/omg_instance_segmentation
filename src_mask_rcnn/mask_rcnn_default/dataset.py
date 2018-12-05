@@ -87,7 +87,6 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
         example = [bboxes, labels, masks]
 
-        
         return tuple([img] + example)
 
     """

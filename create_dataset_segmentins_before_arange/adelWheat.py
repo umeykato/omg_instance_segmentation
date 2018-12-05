@@ -139,7 +139,8 @@ def growth_wheat_someage():
     adel = AdelWheat(nsect=nsect, nplants=1, seed=2)
 
     # save_dir = './obj'
-    save_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/obj'
+    # save_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/obj'
+    save_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/obj'
     makeDirectory(save_dir)
 
     for age in range(100, 1100, 100):
@@ -148,7 +149,7 @@ def growth_wheat_someage():
         adel.grow(g, wdata)
 
         # パラメータcsv保存
-        with open(save_dir+'/param_age'+str(age)+'.csv','w') as f:
+        with open(save_dir+'/param_age{}.csv'.format(age),'w') as f:
             writer=csv.writer(f)
             label=g.property('label')
             geometry=g.property('geometry')

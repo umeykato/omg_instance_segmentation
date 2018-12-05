@@ -38,13 +38,15 @@ def mesh2pointcloud_dataframe(vartices_df, faces_df):
     # print(type(points_xyz))
     # print(points_xyz)
 
-    # print(faces_df['v1'])
-    # print(faces_df['v2'])
-    # print(faces_df['v3'])
+    print(faces_df)
 
-    v1_xyz = points_xyz[faces_df['v1']]
-    v2_xyz = points_xyz[faces_df['v2']]
-    v3_xyz = points_xyz[faces_df['v3']]
+    print(faces_df['v1'])
+    print(faces_df['v2'])
+    print(faces_df['v3'])
+
+    v1_xyz = points_xyz[faces_df['v1']-1]
+    v2_xyz = points_xyz[faces_df['v2']-1]
+    v3_xyz = points_xyz[faces_df['v3']-1]
 
     # print(type(v1_xyz))
     # print(type(v2_xyz))

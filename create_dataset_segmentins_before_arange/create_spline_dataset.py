@@ -103,13 +103,14 @@ def main():
     # adelWheat.growth_wheat_someage()
 
     # age
-    root = '/home/demo/document/ykato_git'
+    # root = '/home/demo/document/ykato_git'
+    root = 'I:/ykato_git'
     repository = '/omg_instance_segmentation'
     repository_path = root + repository
     result_path = root + '/result' + repository
-    dataset_path = root + '/datasets' + repository + '/dataset_ver3'
+    dataset_path = root + '/datasets' + repository + '/dataset_ver4'
 
-    dataset_ver = '3'
+    dataset_ver = '4'
     parts = 'leaf'
 
     for i in range(100, 1100, 100):

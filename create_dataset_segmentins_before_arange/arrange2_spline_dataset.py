@@ -17,11 +17,12 @@ import spline
 
 def main():
     # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
-    root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
+    # root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
+    root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
     img_root = root + '/img'
     txt_root = root + '/ply_render2d'
 
-    save_root = root + '/dataset_SemInsSpline'
+    save_root = root + '/dataset_arrange'
     
     # imageを移す
     for age in range(100, 1100, 100):
@@ -54,8 +55,8 @@ def main():
     for age in range(100, 1100, 100):
         for location in range(5):
             for img_num in range(100):
-                src = txt_root + '/leaf_age{}/location{}_{:04}.txt'.format(age, location, img_num)
-                dst = save_root + '/spline/age{}location{}_{:04}.txt'.format(age, location, img_num)
+                src = txt_root + '/leaf_age{}/location{}_{:04}.csv'.format(age, location, img_num)
+                dst = save_root + '/spline/age{}location{}_{:04}.csv'.format(age, location, img_num)
 
                 shutil.copyfile(src, dst)
 
