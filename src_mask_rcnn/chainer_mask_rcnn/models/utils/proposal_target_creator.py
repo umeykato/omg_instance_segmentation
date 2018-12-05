@@ -114,6 +114,8 @@ class ProposalTargetCreator(object):
         bbox = cuda.to_cpu(bbox)
         label = cuda.to_cpu(label)
 
+        print(bbox.shape)
+
         n_bbox, _ = bbox.shape
         if n_bbox == 0:
             raise ValueError('Empty bbox is not supported.')

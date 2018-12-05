@@ -24,8 +24,13 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
     
 
     def __init__(self, test=False):
+
         # root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/dataset_SemInsSpline'
-        root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+        if os.name == 'nt':
+            root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+        else:
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/dataset_SemInsSpline'
+
         self.img_path = root + '/image/'
         self.sem_path = root + '/semantic/'
         self.ins_path = root + '/instance_segment/'
@@ -43,7 +48,10 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
         # print('fname ', fname)
 
+        resize_size = 500
+
         img = cv2.imread(self.img_path + fname)
+        img = cv2.resize(img, (resize_size, resize_size))
 
         # print('type img ', type(img))
         # print(img.dtype)
@@ -57,13 +65,26 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # instance画像と同サイズのarray生成（ｃｈ数＝最大オブジェクト数）
         ins = np.zeros((ins_num, img.shape[0], img.shape[1]), dtype=np.int32)
 
+        ins_one = np.ones((resize_size, resize_size), dtype=np.uint8) * 255
+
         # instance画像をnumpyに格納
+        offset = 0
         for num in range(ins_num):
             # instance画像生成
             ins_temp = cv2.imread(ins_dir + '{}.png'.format(num+1), 0)
+            ins_temp = cv2.resize(ins_temp, (resize_size, resize_size))
+
+            if (np.sum(ins_temp == ins_one) == 0):
+                ins = np.delete(ins, num-offset, 0)
+                offset += 1
+                continue
+
             # 255で割って正規化したやつを（現在のオブジェクト数）chとして代入
-            ins[num] = ins_temp / 255
+            ins[num-offset] = ins_temp / 255
+
         masks = np.array(ins, dtype=np.uint8)
+
+        ins_num = ins_num - offset
 
         # print('type masks ', type(masks))
         # print(masks.dtype)
@@ -83,11 +104,16 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
         # print('type labels ', type(labels))
         # print(labels.dtype)
-        # print(labels.shape)
 
-        example = [bboxes, labels, masks]
+        print(img.shape)
+        print(bboxes.shape)
+        print(labels.shape)
+        print(masks.shape)
 
-        return tuple([img] + example)
+        if ins_num == 0:
+            return self.get_example(i+1)
+        else:
+            return tuple([img] + [bboxes, labels, masks])
 
     """
     floatで返す
