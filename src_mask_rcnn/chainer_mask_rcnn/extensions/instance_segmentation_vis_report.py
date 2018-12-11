@@ -16,7 +16,7 @@ from .. import utils
 class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
 
     def __init__(self, iterator, target, label_names,
-                 file_name='visualizations/iteration=%08d.jpg',
+                 file_name='visualizations/iteration=%08d.png',
                  shape=(3, 3), copy_latest=True):
         super(InstanceSegmentationVisReport, self).__init__(iterator, target)
         self.label_names = np.asarray(label_names)
@@ -101,9 +101,22 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
             # count+=1
 
             viz = np.vstack([gt_viz, pred_viz])
-            cv2.imwrite()
-            vizh = np.hstack([gt_viz, pred_viz])
+            fname = osp.join(trainer.out, 'visualizations/vstack_iteration={:08}/{}.png'.format(trainer.updater.iteration, count))
+            try:
+                os.makedirs(osp.dirname(fname))
+            except OSError:
+                pass
+            cv2.imwrite(fname, viz[:,:])
 
+            vizh = np.hstack([gt_viz, pred_viz])
+            fname = osp.join(trainer.out, 'visualizations/hstack_iteration={:08}/{}.png'.format(trainer.updater.iteration, count))
+            try:
+                os.makedirs(osp.dirname(fname))
+            except OSError:
+                pass
+            cv2.imwrite(fname, vizh[:,:])
+
+            count += 1
             vizs.append(viz)
             if len(vizs) >= (self._shape[0] * self._shape[1]):
                 break
@@ -120,4 +133,4 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
 
         if self._copy_latest:
             shutil.copy(file_name,
-                        osp.join(osp.dirname(file_name), 'latest.jpg'))
+                        osp.join(osp.dirname(file_name), 'latest.png'))
