@@ -75,7 +75,7 @@ def parse_args():
         default=2,
         help='batch size / gpu',
     )
-    parse.add_argument(
+    parser.add_argument(
         '--resume',
         type=str,
         default=None,
