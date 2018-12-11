@@ -12,6 +12,7 @@
 # --------------------------------------------------------
 
 import numpy as np
+import cupy as xp
 
 import chainer
 from chainer import cuda
@@ -73,7 +74,7 @@ class MaskRCNNTrainChain(chainer.Chain):
         self.loc_normalize_mean = mask_rcnn.loc_normalize_mean
         self.loc_normalize_std = mask_rcnn.loc_normalize_std
 
-    def __call__(self, imgs, bboxes, labels, masks, scales):
+    def __call__(self, imgs, bboxes, labels, masks, scales, sizes):
         """Forward Faster R-CNN and calculate losses.
         mask rcnn のフォワード及びロス計算．faster rcnn をラップ
         Here are notations used.
@@ -112,6 +113,7 @@ class MaskRCNNTrainChain(chainer.Chain):
 
         batch_size, _, H, W = imgs.shape
         img_size = (H, W)
+        # print(imgs.shape)
         # print('2')
         features = self.mask_rcnn.extractor(imgs)
         # print(features.shape)
@@ -152,6 +154,7 @@ class MaskRCNNTrainChain(chainer.Chain):
         # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:141: RuntimeWarning: invalid value encountered in greater_equal
         # (max_iou >= self.neg_iou_thresh_lo))[0]
 
+        # batch size times
         for batch_index, bbox, label, mask in \
                 zip(batch_indices, bboxes, labels, masks):
             roi = rois[roi_indices == batch_index]
@@ -164,7 +167,7 @@ class MaskRCNNTrainChain(chainer.Chain):
             sample_rois.append(sample_roi)
             sample_roi_indices.append(sample_roi_index)
             del sample_roi, sample_roi_index
-            # サンプリングされたRoIとGTのバウンディングボックスを一致させるオフセットとスケール
+            # サンプリングされたRoIの位置，サイズをGTに一致させるオフセットとスケール
             # 
             gt_roi_locs.append(gt_roi_loc)
             # サンプリングされたRoIに割り当てられたラベル
@@ -172,6 +175,8 @@ class MaskRCNNTrainChain(chainer.Chain):
             gt_roi_masks.append(gt_roi_mask)
             del gt_roi_loc, gt_roi_label, gt_roi_mask
         # print('3.8')
+        # print(len(gt_roi_labels))
+        # print(gt_roi_labels[0].shape)
         sample_rois = self.xp.concatenate(sample_rois, axis=0)
         sample_roi_indices = self.xp.concatenate(sample_roi_indices, axis=0)
         gt_roi_locs = self.xp.concatenate(gt_roi_locs, axis=0)
@@ -183,6 +188,23 @@ class MaskRCNNTrainChain(chainer.Chain):
         # print(sample_roi_indices.shape)
         roi_cls_locs, roi_scores, roi_masks = self.mask_rcnn.head(
             features, sample_rois, sample_roi_indices)
+
+        # print(roi_cls_locs.shape)
+        # print(roi_scores.shape)
+        # print(roi_masks.shape)
+
+        # print(type(imgs)) #list
+        # print(len(imgs))
+        # # print(type(imgs[0]))
+        # print(type(sizes)) #list
+        # print(len(sizes))
+        # # print(type(sizes[0]))
+        # print(type(scales)) #list
+        # print(len(scales))
+        # # print(type(imgs[0]))
+
+
+        # bboxes, masks, labels, scores = self.mask_rcnn.predict_prepared([imgs[0], imgs[1]], sizes, list(scales))
 
 
         # print('4')
@@ -219,8 +241,27 @@ class MaskRCNNTrainChain(chainer.Chain):
         roi_locs = roi_cls_locs[self.xp.arange(n_sample), gt_roi_labels]
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_locs, gt_roi_locs, gt_roi_labels, self.roi_sigma)
+
+
+
+        # print('loc')
+        # print(roi_scores.shape)
+        # print(roi_cls_locs.shape)
+        # print(roi_locs.shape)
+        # print(gt_roi_locs.shape)
+        # print(gt_roi_labels.shape)
+        # print(gt_roi_masks.shape)
+        # for loc in roi_locs:
+        #     print(loc)
+
         # print('roi_scores', roi_scores)
-        # print('gt_roi_scores', gt_roi_labels)
+        # print('gt_roi_labels', gt_roi_labels)
+        # print('gt_roi_labels', type(gt_roi_labels))
+        # print('gt_roi_labels', xp.unique(gt_roi_labels))
+        # print('gt_roi_labels', xp.where(gt_roi_labels == 2))
+        # print('gt_roi_labels', xp.where(gt_roi_labels == 2)[0].shape)
+        # print('roi_scores', roi_scores.shape)
+        # print('gt_roi_labels', gt_roi_labels.shape)
         roi_cls_loss = F.softmax_cross_entropy(roi_scores, gt_roi_labels)
 
         # Losses for outputs of mask branch

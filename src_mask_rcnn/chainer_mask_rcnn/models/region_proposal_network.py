@@ -138,7 +138,6 @@ class RegionProposalNetwork(chainer.Chain):
         #add from DeNA mask rcnn
         rpn_fg_scores = rpn_scores.reshape((n, hh, ww, n_anchor))[:, :, :, :]
         rpn_fg_scores = rpn_fg_scores.reshape((n, -1))
-        #
 
         rpn_scores = rpn_scores.reshape((n, -1))
 
@@ -152,8 +151,18 @@ class RegionProposalNetwork(chainer.Chain):
         # n = batchsize
         for i in range(n):
             # bug
+            # print(rpn_locs[i].array.shape)
             # print(rpn_locs[i].array)
+            # print(rpn_locs[i].array[:, 0::4])#ltx
+            # print(rpn_locs[i].array[:, 1::4])#lty
+            # print('rpn_locs[{}]'.format(i), rpn_locs[i].array[:, 2::4].max())#rbx
+            # if rpn_locs[i].array[:, 2::4].max() > 10:
+            #     rpn_locs[i].array[:, 2::4] = 1.
+            # if rpn_locs[i].array[:, 3::4].max() > 10:
+            #     rpn_locs[i].array[:, 3::4] = 1.
+            # print(rpn_locs[i].array[:, 3::4])#rby
             # print(rpn_scores[i].array)
+            # print(anchor.shape)
             # print(anchor)
             # print(img_size)
             roi = self.proposal_layer(

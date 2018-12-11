@@ -123,7 +123,37 @@ class ProposalTargetCreator(object):
         roi = np.concatenate((roi, bbox), axis=0)
 
         pos_roi_per_image = np.round(self.n_sample * self.pos_ratio)
+
+        # print('roi', roi.shape)
+        # print(roi)
+        # print(type(roi))
+        # print('bbox', bbox.shape)
+        # print(bbox)
+        # print(type(bbox))
+        # print(roi[:,None,:2])
+        # print(bbox[:,:2])
+        # print('maximum')
+        # print(np.maximum(roi[:,None,:2], bbox[:,:2]).shape)
+        # print(np.maximum(roi[:,None,:2], bbox[:,:2]))
+        # bbox_a = roi
+        # bbox_b = bbox
+        # # top left
+        # tl = np.maximum(bbox_a[:, None, :2], bbox_b[:, :2])
+        # # bottom right
+        # br = np.minimum(bbox_a[:, None, 2:], bbox_b[:, 2:])
+
+        # area_i = np.prod(br - tl, axis=2) * (tl < br).all(axis=2)
+        # area_a = np.prod(bbox_a[:, 2:] - bbox_a[:, :2], axis=1)
+        # area_b = np.prod(bbox_b[:, 2:] - bbox_b[:, :2], axis=1)
+        # print(np.unique(area_a[:, None] + area_b - area_i))
+        # print((tl < br).all(axis=2))
+        # print(area_a)
+        # print(area_b)
+
         iou = bbox_iou(roi, bbox)
+        # print('iou', iou.shape)
+        # print(type(iou))
+        # iou[np.isnan(iou)] = 0.99
         gt_assignment = iou.argmax(axis=1)
         max_iou = iou.max(axis=1)
         # Offset range of classes from [0, n_fg_class - 1] to [1, n_fg_class].

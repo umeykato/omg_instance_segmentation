@@ -153,6 +153,7 @@ class MaskRCNN(chainer.Chain):
         return roi_cls_locs, roi_scores, rois, roi_indices, roi_masks
 
     def prepare(self, imgs):
+
         prepared_imgs = []
         sizes = []
         scales = []
@@ -166,6 +167,8 @@ class MaskRCNN(chainer.Chain):
 
             if self.max_size and scale * max(H, W) > self.max_size:
                 scale = self.max_size / max(H, W)
+
+            # print(scale)
 
             img = img.transpose(1, 2, 0)
             img = cv2.resize(img, None, fx=scale, fy=scale)
@@ -308,7 +311,20 @@ class MaskRCNN(chainer.Chain):
         return masks
 
     def predict(self, imgs):
+        # print(type(imgs)) #list
+        # print(len(imgs))
+        # print(type(imgs[0])) #numpy
+        # print(imgs[0].shape) #3 500 500
         imgs, sizes, scales = self.prepare(imgs)
+        # print(type(imgs)) #list
+        # print(len(imgs))
+        # print(type(imgs[0])) # numpy
+        # print(type(sizes)) #list
+        # print(len(sizes))
+        # print(type(sizes[0])) # tuple
+        # print(type(scales)) #list
+        # print(len(scales))
+        # print(type(imgs[0])) # numpy
 
         batch = list(zip(imgs, scales))
         x, scales = concat_examples(batch, padding=0)
@@ -337,4 +353,48 @@ class MaskRCNN(chainer.Chain):
         roi_masks = self._to_roi_masks(h, bboxes, roi_indices, scales)
         masks = self._to_masks(bboxes, labels, scores, roi_masks, sizes)
 
+        # for bbox in bboxes:
+        #         print(type(bbox))
+        #         print(len(bbox))
+        #         print(bbox.shape)
+
         return bboxes, masks, labels, scores
+
+
+    def predict_prepared(self, imgs, sizes, scales):
+            imgs, sizes, scales = imgs, sizes, scales
+
+            # print(type(imgs))
+            # print(type(sizes))
+            # print(type(scales))
+
+            batch = list(zip(imgs, scales))
+            x, scales = concat_examples(batch, padding=0)
+            x = self.xp.asarray(x)
+
+            with chainer.using_config('train', False), chainer.no_backprop_mode():
+                h = self.extractor(x)
+                rpn_locs, rpn_scores, rois, roi_indices, anchor = self.rpn(
+                    h, x.shape[2:], scales,
+                )
+                roi_cls_locs, roi_scores, _ = self.head(
+                    h, rois, roi_indices, pred_mask=False,
+                )
+
+            bboxes, labels, scores = self._to_bboxes(
+                roi_cls_locs, roi_scores, rois, roi_indices, sizes, scales,
+            )
+
+            roi_indices = []
+            for i, (bbox, label, score) in enumerate(zip(bboxes, labels, scores)):
+                assert len(bbox) == len(label) == len(score)
+                roi_index = np.full((len(bbox),), i, dtype=np.int32)
+                roi_indices.append(roi_index)
+            roi_indices = np.concatenate(roi_indices, axis=0)
+
+            roi_masks = self._to_roi_masks(h, bboxes, roi_indices, scales)
+            masks = self._to_masks(bboxes, labels, scores, roi_masks, sizes)
+
+            
+
+            return bboxes, masks, labels, scores

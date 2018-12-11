@@ -80,8 +80,6 @@ class MaskRCNNVGG16(MaskRCNN):
         extractor.remove_unused()
         rpn = RegionProposalNetwork(
             512, 512,
-            # 512, 1024,
-            # 1024, 512,
             ratios=ratios,
             anchor_scales=anchor_scales,
             feat_stride=self.feat_stride,
@@ -137,6 +135,8 @@ class MaskRCNNVGG16(MaskRCNN):
 
 
 class VGG16RoIHead(chainer.Chain):
+
+    mask_size = 14  # Size of the predicted mask.
 
     def __init__(self, n_class, roi_size, spatial_scale,
                  vgg_initialW=None, loc_initialW=None, score_initialW=None,

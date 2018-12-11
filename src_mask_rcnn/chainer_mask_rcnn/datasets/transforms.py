@@ -26,6 +26,10 @@ class MaskRCNNTransform(object):
                 raise ValueError
 
         imgs, sizes, scales = self.mask_rcnn.prepare([img])
+        # print(type(imgs))
+        # print(type(sizes))
+        # print(type(scales))
+
         img = imgs[0]
         H, W = sizes[0]
         scale = scales[0]
@@ -37,15 +41,26 @@ class MaskRCNNTransform(object):
             mask = transforms.resize(
                 mask, size=(o_H, o_W), interpolation=0)
 
-        # horizontally flip
+        # # horizontally flip
+        # img, params = transforms.random_flip(
+        #     img, x_random=True, return_param=True)
+        # bbox = transforms.flip_bbox(
+        #     bbox, (o_H, o_W), x_flip=params['x_flip'])
+        # if mask.ndim == 2:
+        #     mask = transforms.flip(
+        #         mask[None, :, :], x_flip=params['x_flip'])[0]
+        # else:
+        #     mask = transforms.flip(mask, x_flip=params['x_flip'])
+
+        # horizontally and vartically flip
         img, params = transforms.random_flip(
-            img, x_random=True, return_param=True)
+            img, y_random=True, x_random=True, return_param=True)
         bbox = transforms.flip_bbox(
-            bbox, (o_H, o_W), x_flip=params['x_flip'])
+            bbox, (o_H, o_W), y_flip=params['y_flip'], x_flip=params['x_flip'])
         if mask.ndim == 2:
             mask = transforms.flip(
-                mask[None, :, :], x_flip=params['x_flip'])[0]
+                mask[None, :, :], y_flip=params['y_flip'], x_flip=params['x_flip'])[0]
         else:
-            mask = transforms.flip(mask, x_flip=params['x_flip'])
+            mask = transforms.flip(mask, y_flip=params['y_flip'], x_flip=params['x_flip'])
 
-        return img, bbox, label, mask, scale
+        return img, bbox, label, mask, scale, sizes

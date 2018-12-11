@@ -8,8 +8,9 @@ import chainer
 
 import numpy as np
 
-# sys.path.append(osp.join(osp.dirname(__file__), '../..'))
+sys.path.append(osp.join(osp.dirname(__file__), '../..'))
 # import chainer_mask_rcnn as cmr
+from chainer_mask_rcnn import utils
 
 here = osp.dirname(osp.abspath(__file__))  # NOQA
 sys.path.insert(0, osp.join(here, '..'))  # NOQA
@@ -41,7 +42,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
     def __len__(self):
         return len(self.img_names)
-        # return 40
+        # return 100
 
     def get_example(self, i):
         fname = self.img_names[i]
@@ -74,10 +75,31 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
             ins_temp = cv2.imread(ins_dir + '{}.png'.format(num+1), 0)
             ins_temp = cv2.resize(ins_temp, (resize_size, resize_size))
 
+            # リサイズでラベル領域がつぶれたらパスする
             if (np.sum(ins_temp == ins_one) == 0):
                 ins = np.delete(ins, num-offset, 0)
                 offset += 1
                 continue
+
+            # バウンディングボックスがつぶれたらパスする
+            index_temp = np.where(ins_temp == 255)
+            # print(index_temp)
+            index_temp = np.array([index_temp[0].min(), index_temp[1].min(), index_temp[0].max(), index_temp[1].max()])
+            if (index_temp[2] - index_temp[0]) < 2 or (index_temp[3] - index_temp[1]) < 2:
+                ins = np.delete(ins, num-offset, 0)
+                offset += 1
+                continue
+
+            # バウンディングボックスのアスペクト比によりパスする
+            # a = index_temp[2] - index_temp[0]
+            # b = index_temp[3] - index_temp[1]
+
+            # if a/b > 8 or a/b < 0.12:
+            #     ins = np.delete(ins, num-offset, 0)
+            #     offset += 1
+            #     continue
+
+            # print('{:<20} {:3} {:3} {:6}'.format(a/b, a, b, a*b))
 
             # 255で割って正規化したやつを（現在のオブジェクト数）chとして代入
             ins[num-offset] = ins_temp / 255
@@ -95,12 +117,17 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # 各instance画像のbboxを求める
         bboxes = []
         for num in range(ins_num):
-            bbox = self._mask_to_bbox(ins[num])
+            # bbox = self._mask_to_bbox(ins[num])
+            bbox = utils.mask_to_bbox(ins[num])
             bboxes.append(bbox)
+            # print((bbox[2]-bbox[0])*(bbox[3]-bbox[1]))
         bboxes = np.array(bboxes, dtype=np.float32)
         # print(bboxes.shape)
+        # print(ins_num)
+        # print(bboxes)
 
-        labels = np.ones((ins_num), dtype=np.int32)
+        # クラスラベル　全部１
+        labels = np.zeros((ins_num), dtype=np.int32)
 
         # print('type labels ', type(labels))
         # print(labels.dtype)
@@ -109,6 +136,8 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # print(bboxes.shape)
         # print(labels.shape)
         # print(masks.shape)
+
+        # print(bboxes.shape)
 
         if ins_num == 0:
             return self.get_example(i+1)
@@ -120,7 +149,8 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
     """
     def _mask_to_bbox(self, mask):
         index = np.where(mask == 1)
-        return [index[0].min(), index[1].min(), index[0].max(), index[1].max()]
+        # return [index[0].min(), index[1].min(), index[0].max(), index[1].max()]
+        return [index[1].min(), index[0].min(), index[1].max(), index[0].max()]
 
     """
     anns(annotations)からbbox, label, maskを作ってる

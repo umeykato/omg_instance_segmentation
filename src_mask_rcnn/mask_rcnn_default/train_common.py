@@ -62,6 +62,7 @@ def parse_args():
     )
     # (180e3 * 8) / len(coco_trainval)
     default_max_epoch = (180e3 * 8) / 118287
+    default_max_epoch = 1000
     parser.add_argument(
         '--max-epoch',
         type=float,
@@ -71,7 +72,7 @@ def parse_args():
     parser.add_argument(
         '--batch-size-per-gpu',
         type=int,
-        default=1,
+        default=2,
         help='batch size / gpu',
     )
     return parser.parse_args()
@@ -85,6 +86,7 @@ def train(args, train_data, test_data, evaluator_type):
         'min_size',
         'max_size',
         'anchor_scales',
+        'ratios',
     ]
     for arg_key in required_args:
         if not hasattr(args, arg_key):
@@ -126,7 +128,7 @@ def train(args, train_data, test_data, evaluator_type):
 
     # lr: 0.00125 * 8 = 0.01  in original
     # args.lr = 0.00125 * args.batch_size
-    args.lr = 0.00125 * args.batch_size
+    args.lr = 0.00125
     args.weight_decay = 0.0001
 
     # lr / 10 at 120k iteration with
@@ -165,6 +167,8 @@ def train(args, train_data, test_data, evaluator_type):
             n_fg_class=1,
             pretrained_model='imagenet',
             pooling_func=pooling_func,
+            # ratios=(0.5, 1, 2),
+            ratios=args.ratios,
             anchor_scales=args.anchor_scales,
             roi_size=args.roi_size,
             min_size=args.min_size,
@@ -190,7 +194,7 @@ def train(args, train_data, test_data, evaluator_type):
     if args.multi_node or args.gpu >= 0:
         model.to_gpu()
 
-    print(model)
+    # print(model)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=args.lr, momentum=0.9)
     if args.multi_node:
@@ -263,7 +267,7 @@ def train(args, train_data, test_data, evaluator_type):
         ),
     )
 
-    eval_interval = 1, 'epoch'
+    eval_interval = 1000, 'iteration'
     log_interval = 20, 'iteration'
     plot_interval = 0.1, 'epoch'
     print_interval = 20, 'iteration'

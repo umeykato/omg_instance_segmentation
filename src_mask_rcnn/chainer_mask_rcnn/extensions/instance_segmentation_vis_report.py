@@ -34,6 +34,7 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
         else:
             it = copy.copy(iterator)
 
+        # predict関数とiteratorを渡して入力画像，出力値，教師値を取得
         in_values, out_values, rest_values = apply_to_iterator(
             target.predict, it)
 
@@ -45,13 +46,18 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
 
         score_thresh = 0.7
 
+        # print('len ', len(pred_bboxes))
+        # print(pred_bboxes.shape)
+
         # visualize
         vizs = []
+        count = 0
         for img, gt_bbox, gt_label, gt_mask, \
             pred_bbox, pred_label, pred_mask, pred_score \
                 in six.moves.zip(imgs, gt_bboxes, gt_labels, gt_masks,
                                  pred_bboxes, pred_labels, pred_masks,
                                  pred_scores):
+            print(pred_bbox)
             # organize input
             img = img.transpose(1, 2, 0)  # CHW -> HWC
             gt_mask = gt_mask.astype(bool)
@@ -65,11 +71,11 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
                 bg_class=0)
 
 
-            keep = pred_score >= score_thresh
-            pred_bbox = pred_bbox[keep]
-            pred_label = pred_label[keep]
-            pred_mask = pred_mask[keep]
-            pred_score = pred_score[keep]
+            # keep = pred_score >= score_thresh
+            # pred_bbox = pred_bbox[keep]
+            # pred_label = pred_label[keep]
+            # pred_mask = pred_mask[keep]
+            # pred_score = pred_score[keep]
 
             captions = []
             # print(pred_score)
@@ -83,6 +89,11 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
             pred_viz = utils.draw_instance_bboxes(
                 img, pred_bbox, pred_label + 1, n_class=n_class,
                 masks=pred_mask, captions=captions, bg_class=0)
+            # print(pred_viz.shape)
+            # fname = osp.join(trainer.out, self.file_name % (trainer.updater.iteration * 1000000 + count))
+            # print(fname)
+            # cv2.imwrite(fname, pred_viz)
+            # count+=1
 
             viz = np.vstack([gt_viz, pred_viz])
             vizs.append(viz)
@@ -96,7 +107,8 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
             os.makedirs(osp.dirname(file_name))
         except OSError:
             pass
-        cv2.imwrite(file_name, viz[:, :, ::-1])
+        # cv2.imwrite(file_name, viz[:, :, ::-1])
+        cv2.imwrite(file_name, viz[:, :])
 
         if self._copy_latest:
             shutil.copy(file_name,
