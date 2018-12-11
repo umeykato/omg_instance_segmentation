@@ -75,6 +75,12 @@ def parse_args():
         default=2,
         help='batch size / gpu',
     )
+    parse.add_argument(
+        '--resume',
+        type=str,
+        default=None,
+        help='load trainer parameter'
+    )
     return parser.parse_args()
 
 
@@ -267,10 +273,14 @@ def train(args, train_data, test_data, evaluator_type):
         ),
     )
 
+    if args.resume is not None:
+        chainer.serializers.load_npz(args.resume, trainer)
+
     eval_interval = 1000, 'iteration'
     log_interval = 20, 'iteration'
     plot_interval = 0.1, 'epoch'
     print_interval = 20, 'iteration'
+    snapshot_interval = 5000, 'iteration'
 
     if evaluator_type == 'voc':
         evaluator = cmr.extensions.InstanceSegmentationVOCEvaluator(
@@ -299,11 +309,21 @@ def train(args, train_data, test_data, evaluator_type):
         # Save snapshot.
         trainer.extend(
             extensions.snapshot_object(model.mask_rcnn, 'snapshot_model_{}.npz'.format(trainer.updater.epoch)),
-            trigger=training.triggers.MaxValueTrigger(
-                'validation/main/map',
-                eval_interval,
-            ),
+            # trigger=training.triggers.MaxValueTrigger(
+            #     'validation/main/map',
+            #     eval_interval,
+            # ),
             # trigger=(1, 'epoch'),
+            trigger=snapshot_interval,
+        )
+
+        trainer.extend(
+            extensions.snapshot(filename='snapshot_trainer_iter-{}.npz'.format(trainer.updater.iteration)),
+            # tringger=training.triggers.MaxValueTrigger(
+            #     'validation/main/map',
+            #     eval_interval,
+            # ),
+            trigger=snapshot_interval,
         )
 
         # Dump params.yaml.

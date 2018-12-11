@@ -22,15 +22,20 @@ import cv2
 
 class OomugiDataset(chainer.dataset.DatasetMixin):
 
-    
-
     def __init__(self, test=False):
 
-        # root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/dataset_SemInsSpline'
         if os.name == 'nt':
-            root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
-        else:
-            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/dataset_SemInsSpline'
+            # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+            root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
+        elif os.name == 'posix':
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/train'
+
+        if os.name == 'nt' and test:
+            # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+            root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
+        elif os.name == 'posix' and test:
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/test'
+
 
         self.img_path = root + '/image/'
         self.sem_path = root + '/semantic/'
@@ -38,9 +43,11 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         self.spline_path = root + '/spline/'
 
         self.img_names = os.listdir(self.img_path)
+        self.test = test
 
 
     def __len__(self):
+        print(len(self.img_names))
         return len(self.img_names)
         # return 100
 

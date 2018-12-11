@@ -57,7 +57,6 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
                 in six.moves.zip(imgs, gt_bboxes, gt_labels, gt_masks,
                                  pred_bboxes, pred_labels, pred_masks,
                                  pred_scores):
-            print(pred_bbox)
             # organize input
             img = img.transpose(1, 2, 0)  # CHW -> HWC
             gt_mask = gt_mask.astype(bool)
@@ -71,17 +70,23 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
                 bg_class=0)
 
 
-            # keep = pred_score >= score_thresh
-            # pred_bbox = pred_bbox[keep]
-            # pred_label = pred_label[keep]
-            # pred_mask = pred_mask[keep]
-            # pred_score = pred_score[keep]
+            keep = pred_score >= score_thresh
+            pred_bbox = pred_bbox[keep]
+            pred_label = pred_label[keep]
+            pred_mask = pred_mask[keep]
+            pred_score = pred_score[keep]
+
+            # print('pred_bbox', pred_bbox)
+            # print('pred_label', pred_label)
+            # print('pred_mask', pred_mask)
+            # print('pred_score', pred_score)
+
+            # print('pred_bbox', pred_bbox.shape)
+            # print('pred_label', pred_label.shape)
+            # print('pred_mask', pred_mask.shape)
+            # print('pred_score', pred_score.shape)
 
             captions = []
-            # print(pred_score)
-            # print(label_names)
-            # print(pred_label)
-            # print(label_names[pred_label+1])
             for p_score, l_name in zip(pred_score,
                                        label_names[pred_label + 1]):
                 caption = '{:s} {:.1%}'.format(l_name, p_score)
@@ -96,6 +101,9 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
             # count+=1
 
             viz = np.vstack([gt_viz, pred_viz])
+            cv2.imwrite()
+            vizh = np.hstack([gt_viz, pred_viz])
+
             vizs.append(viz)
             if len(vizs) >= (self._shape[0] * self._shape[1]):
                 break
