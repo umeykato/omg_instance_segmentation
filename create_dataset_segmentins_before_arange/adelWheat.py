@@ -50,6 +50,14 @@ def plot3d1(g,i,
     greeness = g.property('is_green')
     labels = g.property('label')
     scene = Scene()
+
+    output_map = [[True, True, True, True],
+                    [True, False, True, False],
+                    [False, True, False, True],
+                    [True, False, False, False],
+                    [False, True, False, False],
+                    [False, False, True, False],
+                    [False, False, False, True]]
     
     def geom2shape(vid, mesh, scene):
         shape = None
@@ -72,24 +80,31 @@ def plot3d1(g,i,
                 shape.id=vid
             scene.add(shape)
 
-        # 茎を出す
-        elif label.startswith('Stem') and is_green and (i==0 or i==3):
+        # 緑の茎を出す
+        elif label.startswith('Stem') and is_green and (output_map[i][0]):
             shape = Shape(mesh, stem_material)
             shape.id=vid
             scene.add(shape)
             s=property(scene.add(shape))
 
         # 緑の葉を出す
-        elif label.startswith('Leaf') and is_green and (i==1 or i==3 or i==4):
+        elif label.startswith('Leaf') and is_green and (output_map[i][1]):
             shape = Shape(mesh, leaf_material)
             shape.id=vid
             scene.add(shape)
 
-        # 茶色の葉を出す
-        elif not is_green and (i==2 or i==3 or i==4):
+        # 茶色の茎を出す
+        elif label.startswith('Stem') and not is_green and (output_map[i][2]):
             shape = Shape(mesh, soil_material)
             shape.id=vid
             scene.add(shape)
+
+        # 茶色の葉を出す
+        elif label.startswith('Leaf') and not is_green and (output_map[i][3]):
+            shape = Shape(mesh, soil_material)
+            shape.id=vid
+            scene.add(shape)
+
 
     for vid, mesh in geometries.iteritems():
         geom2shape(vid, mesh, scene)
@@ -165,8 +180,8 @@ def growth_wheat_someage():
 
         # 茎，緑葉，茶葉，全体, 葉を生成して保存
 
-        folder_name = ['stem','green','brown','all','leaf']
-        for i in range(0,5,1):
+        folder_name = ['all','stem', 'leaf', 'green_stem', 'green_leaf', 'brown_stem', 'brown_leaf']
+        for i in range(len(folder_name)):
             makeDirectory(save_dir+'/'+folder_name[i]+'_age'+str(age))
             st = plot3d1(g,i)
             for t in range(len(st)):
