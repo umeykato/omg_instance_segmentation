@@ -137,7 +137,7 @@ def main():
 
     # ループ回数は　生長時間(age) * 撮影の高さ位置(location) * 円上での撮影回数(img_num)
     start = args.start
-    for age in range(start, start+100, 100):
+    for age in range(100, 1100, 100):
         for location in range(5):
             for img_num in range(100):
                 instance_segment(age, location, img_num)
