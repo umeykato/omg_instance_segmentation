@@ -28,13 +28,13 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
             root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
         #     root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
         elif os.name == 'posix':
-            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/train'
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
 
         if os.name == 'nt' and test:
             root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
             # root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
         elif os.name == 'posix' and test:
-            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/test'
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
 
 
         self.img_path = root + '/image/'
@@ -79,7 +79,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         offset = 0
         for num in range(ins_num):
             # instance画像生成
-            ins_temp = cv2.imread(ins_dir + '{}.png'.format(num+1), 0)
+            ins_temp = cv2.imread(ins_dir + '{}.png'.format(num), 0)
             ins_temp = cv2.resize(ins_temp, (resize_size, resize_size))
 
             # リサイズでラベル領域がつぶれたらパスする
