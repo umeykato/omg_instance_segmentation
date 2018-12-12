@@ -47,7 +47,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
 
 
     def __len__(self):
-        print(len(self.img_names))
+        # print(len(self.img_names))
         return len(self.img_names)
         # return 100
 
@@ -68,6 +68,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # instance画像のパス生成
         ins_dir = self.ins_path + self.img_names[i].rstrip('.png') + '/'
         # オブジェクト数を格納
+        # ins_num = len(os.listdir(ins_dir)) - 1
         ins_num = len(os.listdir(ins_dir))
         # print(ins_num)
         # instance画像と同サイズのarray生成（ｃｈ数＝最大オブジェクト数）
@@ -78,6 +79,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # instance画像をnumpyに格納
         offset = 0
         ins_fnames = os.listdir(ins_dir)
+        # for num in range(ins_num):
         for num, fname in enumerate(ins_fnames):
             # instance画像生成
             # print(ins_dir + fname)
