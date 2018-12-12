@@ -57,8 +57,8 @@ def main():
 
     # read_dir = root + '/dataset_SemInsSpline/instance'
     # save_path = root + '/dataset_SemInsSpline/instance_segment'
-    read_dir = root + '/dataset_arrange/instance'
-    save_path = root + '/dataset_arrange/instance_segment'
+    read_dir = root + '/train/instance'
+    save_path = root + '/train/instance_segment'
 
 
 
