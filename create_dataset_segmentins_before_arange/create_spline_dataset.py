@@ -110,6 +110,12 @@ def main():
     result_path = root + '/result' + repository
     dataset_path = root + '/datasets' + repository + '/dataset_ver4'
 
+    if os.name == 'nt':
+        dataset_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    else:
+        dataset_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+
+
     dataset_ver = '4'
     parts = 'leaf'
 

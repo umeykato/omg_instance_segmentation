@@ -140,7 +140,11 @@ def growth_wheat_someage():
 
     # save_dir = './obj'
     # save_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/obj'
-    save_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/obj'
+    if os.name == 'nt':
+        save_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/obj'
+    else:
+        save_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/obj'
+
     makeDirectory(save_dir)
 
     for age in range(100, 1100, 100):

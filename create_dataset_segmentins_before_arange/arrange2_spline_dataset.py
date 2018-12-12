@@ -18,7 +18,12 @@ import spline
 def main():
     # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
     # root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
-    root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    # root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    if os.name == 'nt':
+        root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    else:
+        root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+
     img_root = root + '/img'
     txt_root = root + '/ply_render2d'
 

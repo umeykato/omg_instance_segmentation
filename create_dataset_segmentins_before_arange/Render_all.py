@@ -597,6 +597,12 @@ def main():
     # root_dir = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3'
     root_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
     # root_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
+
+    if os.name == 'nt':
+        root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    else:
+        root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+
     obj_dir = root_dir + '/obj'
     ply_dir = root_dir + '/ply_render3d'
     img_dir = root_dir + '/img'

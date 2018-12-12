@@ -46,10 +46,15 @@ def calcPosition(image_path):
 
 
 def main():
+    if os.name == 'nt':
+        dataset_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+    else:
+        dataset_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+
     # root_path = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/img'
     # save_path = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/ply_render2d'
-    root_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/img'
-    save_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/ply_render2d'
+    root_path = dataset_path + '/img'
+    save_path = dataset_path + '/ply_render2d'
     # root_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/img'
     # save_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/ply_render2d'
 
