@@ -25,14 +25,14 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
     def __init__(self, test=False):
 
         if os.name == 'nt':
-            # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
-            root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
+            root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+        #     root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
         elif os.name == 'posix':
             root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/train'
 
         if os.name == 'nt' and test:
-            # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
-            root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
+            root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
+            # root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
         elif os.name == 'posix' and test:
             root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3/test'
 
@@ -54,7 +54,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         fname = self.img_names[i]
 
-        # print('fname ', fname)
+        print('fname ', fname)
 
         resize_size = 500
 

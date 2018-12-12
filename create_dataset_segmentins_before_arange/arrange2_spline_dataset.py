@@ -27,7 +27,7 @@ def main():
     img_root = root + '/img'
     txt_root = root + '/ply_render2d'
 
-    save_root = root + '/dataset_arrange'
+    save_root = root + '/train'
     
     # imageを移す
     for age in range(100, 1100, 100):
