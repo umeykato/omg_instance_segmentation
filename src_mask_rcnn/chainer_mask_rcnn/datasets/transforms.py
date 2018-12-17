@@ -1,6 +1,5 @@
 from chainercv import transforms
 
-
 class MaskRCNNTransform(object):
 
     def __init__(self, mask_rcnn, train=True):
