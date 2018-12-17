@@ -15,6 +15,8 @@ from chainer_mask_rcnn import utils
 here = osp.dirname(osp.abspath(__file__))  # NOQA
 sys.path.insert(0, osp.join(here, '..'))  # NOQA
 
+import train_common_predict
+
 import cv2
 
 
