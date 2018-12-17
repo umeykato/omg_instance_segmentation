@@ -78,7 +78,8 @@ def parse_args():
     parser.add_argument(
         '--resume',
         type=str,
-        default='I:/ykato_git/result/omg_instance_segmentation/mask_rnn_log/20181214_191250/snapshot_trainer_iter-95000.npz',
+        default=None,
+        # default='I:/ykato_git/result/omg_instance_segmentation/mask_rnn_log/20181214_191250/snapshot_trainer_iter-95000.npz',
         help='load trainer parameter'
     )
     return parser.parse_args()
