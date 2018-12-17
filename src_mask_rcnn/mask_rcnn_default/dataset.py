@@ -30,6 +30,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         elif os.name == 'posix':
             root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/mask_rcnn_dataset/train'
 
+
         if os.name == 'nt' and test:
             # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
             root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'

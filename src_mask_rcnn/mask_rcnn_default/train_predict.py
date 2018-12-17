@@ -34,7 +34,7 @@ def main():
     #     return_area=True,
     # )
     # args.class_names = tuple(test_data.class_names.tolist())
-
+ 
     args.dataset = 'original'
     train_data = dataset.OomugiDataset()
     test_data = dataset.OomugiDataset(test=True)

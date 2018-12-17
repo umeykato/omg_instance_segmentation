@@ -46,6 +46,7 @@ def main():
     args.anchor_scales = (2, 4, 8, 16, 32)
     args.ratios = (0.11, 0.14, 0.2, 0.25, 0.33, 0.5, 1, 2, 3, 4, 5, 7, 9)
 
+
     # Run training!.
     train_common.train(
         args=args,
