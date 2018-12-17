@@ -15,7 +15,7 @@ from chainer_mask_rcnn import utils
 here = osp.dirname(osp.abspath(__file__))  # NOQA
 sys.path.insert(0, osp.join(here, '..'))  # NOQA
 
-import train_common
+import train_common_predict
 
 import cv2
 
@@ -28,13 +28,13 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
             # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
             root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
         elif os.name == 'posix':
-            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/mask_rcnn_dataset/train'
 
         if os.name == 'nt' and test:
             # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
             root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
         elif os.name == 'posix' and test:
-            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
+            root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/mask_rcnn_dataset/test'
 
 
         self.img_path = root + '/image/'

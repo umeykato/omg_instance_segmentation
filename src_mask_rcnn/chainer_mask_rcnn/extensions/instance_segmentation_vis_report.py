@@ -100,23 +100,23 @@ class InstanceSegmentationVisReport(chainer.training.extensions.Evaluator):
             # cv2.imwrite(fname, pred_viz)
             # count+=1
 
-            viz = np.vstack([gt_viz, pred_viz])
-            fname = osp.join(trainer.out, 'visualizations/vstack_iteration={:08}/{}.png'.format(trainer.updater.iteration, count))
+            fname = osp.join(trainer.out, 'visualizations/gt/{}.png'.format(count))
             try:
                 os.makedirs(osp.dirname(fname))
             except OSError:
                 pass
-            cv2.imwrite(fname, viz[:,:])
+            cv2.imwrite(fname, gt_viz)
 
-            vizh = np.hstack([gt_viz, pred_viz])
-            fname = osp.join(trainer.out, 'visualizations/hstack_iteration={:08}/{}.png'.format(trainer.updater.iteration, count))
+            fname = osp.join(trainer.out, 'visualizations/pred_iteration={:08}/{}.png'.format(trainer.updater.iteration, count))
             try:
                 os.makedirs(osp.dirname(fname))
             except OSError:
                 pass
-            cv2.imwrite(fname, vizh[:,:])
+            cv2.imwrite(fname, pred_viz)
 
             count += 1
+            
+            viz = np.vstack([gt_viz, pred_viz])
             vizs.append(viz)
             if len(vizs) >= (self._shape[0] * self._shape[1]):
                 break

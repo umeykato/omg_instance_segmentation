@@ -78,7 +78,7 @@ def parse_args():
     parser.add_argument(
         '--resume',
         type=str,
-        default=None,
+        default='I:/ykato_git/result/omg_instance_segmentation/mask_rnn_log/20181214_191250/snapshot_trainer_iter-95000.npz',
         help='load trainer parameter'
     )
     return parser.parse_args()
@@ -276,9 +276,9 @@ def train(args, train_data, test_data, evaluator_type):
     if args.resume is not None:
         chainer.serializers.load_npz(args.resume, trainer)
 
-    eval_interval = 1000, 'iteration'
+    eval_interval = 5000, 'iteration'
     log_interval = 20, 'iteration'
-    plot_interval = 0.1, 'epoch'
+    plot_interval = 100, 'iteration'
     print_interval = 20, 'iteration'
     snapshot_interval = 5000, 'iteration'
 
@@ -313,8 +313,8 @@ def train(args, train_data, test_data, evaluator_type):
             #     'validation/main/map',
             #     eval_interval,
             # ),
-            # trigger=(1, 'epoch'),
-            trigger=snapshot_interval,
+            trigger=(1, 'epoch'),
+            # trigger=snapshot_interval,
         )
 
         trainer.extend(
@@ -323,7 +323,8 @@ def train(args, train_data, test_data, evaluator_type):
             #     'validation/main/map',
             #     eval_interval,
             # ),
-            trigger=snapshot_interval,
+            trigger=(1, 'epoch'),
+            # trigger=snapshot_interval,
         )
 
         # Dump params.yaml.

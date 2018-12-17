@@ -26,11 +26,7 @@ process: verticesとfacesから点群を生成
 input:   vertices, faces
 output:  pointcloud
 """
-def mesh2pointcloud_list(vartices, faces):
-    pass
 
-def mesh2pointcloud_array(vartices_array, faces_array):
-    pass
     
 def mesh2pointcloud_dataframe(vartices_df, faces_df):
     points_xyz = vartices_df[['x','y','z']].values
@@ -38,11 +34,11 @@ def mesh2pointcloud_dataframe(vartices_df, faces_df):
     # print(type(points_xyz))
     # print(points_xyz)
 
-    print(faces_df)
+    # print(faces_df)
 
-    print(faces_df['v1'])
-    print(faces_df['v2'])
-    print(faces_df['v3'])
+    # print(faces_df['v1'])
+    # print(faces_df['v2'])
+    # print(faces_df['v3'])
 
     v1_xyz = points_xyz[faces_df['v1']-1]
     v2_xyz = points_xyz[faces_df['v2']-1]

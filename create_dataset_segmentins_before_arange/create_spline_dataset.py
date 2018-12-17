@@ -13,12 +13,6 @@ import mesh2pointcloud
 import isomap
 import spline
 
-def create_wheat_object():
-    pass    
-def save_obj():
-    pass
-
-
 """
 process: objファイルのverticesとfacesを読み込む
 input: 　ファイルパス
@@ -102,27 +96,15 @@ def main():
     # 保存する物：オオムギ全体，茎，緑葉，茶葉，葉のobjファイル，生成時のパラメータ
     # adelWheat.growth_wheat_someage()
 
-    # age
-    # root = '/home/demo/document/ykato_git'
-    root = 'I:/ykato_git'
-    repository = '/omg_instance_segmentation'
-    repository_path = root + repository
-    result_path = root + '/result' + repository
-    dataset_path = root + '/datasets' + repository + '/dataset_ver4'
-
     if os.name == 'nt':
         dataset_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
-    else:
+    elif: os.name == 'posix'
         dataset_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
-
-
-    dataset_ver = '4'
-    parts = 'leaf'
 
     for i in range(100, 1100, 100):
         # file num
         # for j in range(len(os.listdir('./obj/leaf_age{}'.format(i)))):
-        for j in range(len(os.listdir(dataset_path + '/obj/{}_age{}'.format(parts, i)))):
+        for j in range(len(os.listdir(dataset_path + '/obj/leaf_age{}'.format(i)))):
             fname = dataset_path + '/obj/leaf_age{}/{}.obj'.format(i, j)
             save_dir = dataset_path + '/ply_render3d/leaf_age{}'.format(i)
             try:
@@ -156,11 +138,7 @@ def main():
 
             sp = spline.CatmullRomSpline(control_points, len(control_points))
             save_ply(save_dir + '/SplinePoints_{}.ply'.format(j),np.array(sp))
-
-            # print('cp = ', cp)
-            # print('sp = ', sp)
-
-    
+   
 
 if __name__=='__main__':
     main()

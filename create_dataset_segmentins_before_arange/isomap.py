@@ -8,14 +8,8 @@ import sys
 import numpy as np
 import pandas as pd
 
-# from pyntcloud.io import read_ply
-# from pyntcloud.io import write_ply
-# from pyntcloud import PyntCloud
 from sklearn.datasets import load_digits
 from sklearn.manifold import Isomap
-# import matplotlib.pyplot as plt
-# from mpl_toolkits.mplot3d import Axes3D
-# from scipy.interpolate import interp2d
 
 def isomap_centerline(pointcloud):
     # 点群を取得
@@ -45,26 +39,13 @@ def isomap_centerline(pointcloud):
 
     # 取得したインデックスをisomapのx軸に関して昇順にソート
     points_xyz_iso_index = points_xyz_iso[index, :]
-
     temp = np.argsort(points_xyz_iso_index, axis=1)
-
-    # print("ソート前")
-    # print(index[0])
-    # print("ソート順")
-    # print(temp[:,:,0][0])
-    # print("ソート後")
-    # print(index[0][temp[:,:,0][0]])
-
     index_sorted = index[0][temp[:,:,0][0]]
 
     # anky_points_xyz_iso_index = anky_points_xyz_iso[index, :]
     points_xyz_iso_index = points_xyz_iso[index_sorted]
     x_iso_index = points_xyz_iso_index[:,0]
     y_iso_index = points_xyz_iso_index[:,1]
-
-    # plt.scatter(x_iso, y_iso)
-    # plt.scatter(x_iso_index, y_iso_index, color='red')
-    # plt.show()
 
     points_xyz_index = points_xyz[index_sorted]
     x_index = points_xyz_index[:,0]
@@ -81,8 +62,7 @@ def isomap_centerline(pointcloud):
         d = math.sqrt(dx**2 + dy**2 + dz**2)
         distance += d
         distance_list.append(distance)
-    # print(distance_list)
-    # print(distance)
+
 
     # point_num点で等間隔の距離リストを出す
     point_num = 8
@@ -90,7 +70,7 @@ def isomap_centerline(pointcloud):
     distance_midPoints_neighborhood = []
     for i in range(point_num):
         distance_midPoints_neighborhood.append(distance_interval * float(i))
-    # print(distance_midPoints_neighborhood)
+
 
     def getNearestValue(list, num):
         """
@@ -111,21 +91,7 @@ def isomap_centerline(pointcloud):
         spline_index.append(getNearestValue(distance_list, distance_midPoints_neighborhood[i]))
     
     spline_xyz = points_xyz[np.array(index[0][temp[:,:,0][0]])[spline_index]]
-    x_spline = spline_xyz[:,0]
-    y_spline = spline_xyz[:,1]
-    z_spline = spline_xyz[:,2]
-    # print(spline_xyz)
 
-    # plt.scatter(x_iso, y_iso)
-    # plt.scatter(x_iso_index, y_iso_index, color='red')
-    # plt.show()
-
-    # fig = plt.figure()
-    # ax = Axes3D(fig)
-    # ax.plot(x,y,z,'o',ms=1, mew=0.1, color='black')
-    # ax.plot(x_index,y_index,z_index,'o',ms=3, mew=0.1, color='red')
-    # ax.plot(x_spline,y_spline,z_spline,'o',ms=5, mew=0.1, color='green')
-    # plt.show()
 
     return points_xyz_iso, points_xyz_iso_index, points_xyz_index, spline_xyz
 

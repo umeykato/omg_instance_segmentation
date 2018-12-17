@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import datetime
 import functools
+import os
 import os.path as osp
 import random
 import socket
@@ -16,6 +17,8 @@ from chainer import training
 from chainer.training import extensions
 import fcn
 import numpy as np
+import cupy as xp
+import cv2
 
 sys.path.append(osp.join(osp.dirname(__file__), '..'))
 import chainer_mask_rcnn as cmr
@@ -79,7 +82,7 @@ def parse_args():
     parser.add_argument(
         '--resume',
         type=str,
-        default='I:/ykato_git/result/omg_instance_segmentation/mask_rnn_log/20181211_122853/snapshot_model_0.npz',
+        default='I:/ykato_git/result/omg_instance_segmentation/mask_rnn_log/20181211_122853-o/snapshot_model_0.npz',
         help='load trainer parameter'
     )
     return parser.parse_args()
@@ -275,7 +278,7 @@ def train(args, train_data, test_data, evaluator_type):
     )
 
     if args.resume is not None:
-        chainer.serializers.load_npz(args.resume, trainer)
+        chainer.serializers.load_npz(args.resume, model.mask_rcnn)
 
     eval_interval = 1000, 'iteration'
     log_interval = 20, 'iteration'
@@ -399,11 +402,58 @@ def train(args, train_data, test_data, evaluator_type):
     # trainer.run()
 
 
-    predict_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_simulation/test'
+    def visualize(imgs, bboxes, masks, labels, scores):
+        score_thresh = 0.7
+
+        print(imgs.shape)
+
+        dst = []
+        for img, bbox, mask, label, score \
+            in zip(imgs, bboxes, masks, labels, scores):
+
+            keep = score >= score_thresh
+            bbox = bbox[keep]
+            label = label[keep]
+            mask = mask[keep]
+            score = score[keep]
+
+            captions = []
+            for p_score in score:
+                caption = 'leaf {:.1%}'.format(p_score)
+                captions.append(caption)
+
+            viz = cmr.utils.draw_instance_bboxes(
+                img, bbox, label+1, n_class=2,
+                masks=mask, captions=captions, bg_class=0)
+
+            dst.append(viz)
+
+        return dst
+
+    predict_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_DIA/image'
+    mask_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_DIA/label'
+    save_dir = './predict_DIA_noMask'
 
     fnames = os.listdir(predict_dir)
 
     for fname in fnames:
-        img = cv2.imread(fname)
-        print(img.shape)
+        print(osp.join(predict_dir, fname))
+        img = cv2.imread(osp.join(predict_dir, fname))
+        # mask = cv2.imread(osp.join(mask_dir, fname)) / 255
+        # white = np.ones(img.shape) * 255
+
+        # img = img * mask + white * (1-mask)
+        # print(img.dtype)
+        img = img.transpose(2, 0, 1)[None,:,:,:].astype(np.uint8)
+
+        # img_variable = chainer.Variable(xp.array(img))
+
+        bboxes, masks, labels, scores = model.mask_rcnn.predict(img)
+
+        output = visualize(img.transpose(0,2,3,1), bboxes, masks, labels, scores)
+
+        for p_output in output:
+            cv2.imwrite(osp.join(save_dir, fname), p_output)
+
+
 
