@@ -6,7 +6,7 @@ import sys
 import chainer
 
 sys.path.append(osp.join(osp.dirname(__file__), '..'))
-import chainer_mask_rcnn as cmr
+import chainer_mask_rcnn_spline as cmr
 
 here = osp.dirname(osp.abspath(__file__))  # NOQA
 sys.path.insert(0, osp.join(here, '..'))  # NOQA

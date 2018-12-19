@@ -3,6 +3,7 @@
 import os
 import os.path as osp
 import sys
+import csv
 
 import chainer
 
@@ -10,7 +11,7 @@ import numpy as np
 
 sys.path.append(osp.join(osp.dirname(__file__), '../..'))
 # import chainer_mask_rcnn as cmr
-from chainer_mask_rcnn import utils
+from chainer_mask_rcnn_spline import utils
 
 here = osp.dirname(osp.abspath(__file__))  # NOQA
 sys.path.insert(0, osp.join(here, '..'))  # NOQA
@@ -72,12 +73,12 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         # print(ins_num)
         # instance画像と同サイズのarray生成（ｃｈ数＝最大オブジェクト数）
         ins = np.zeros((ins_num, img.shape[0], img.shape[1]), dtype=np.int32)
-
         ins_one = np.ones((resize_size, resize_size), dtype=np.uint8) * 255
 
         # instance画像をnumpyに格納
         offset = 0
         ins_fnames = os.listdir(ins_dir)
+        num_list = []
         # for num in range(ins_num):
         for num, fname in enumerate(ins_fnames):
             # instance画像生成
@@ -100,29 +101,20 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
                 offset += 1
                 continue
 
-            # バウンディングボックスのアスペクト比によりパスする
-            # a = index_temp[2] - index_temp[0]
-            # b = index_temp[3] - index_temp[1]
-
-            # if a/b > 8 or a/b < 0.12:
-            #     ins = np.delete(ins, num-offset, 0)
-            #     offset += 1
-            #     continue
-
-            # print('{:<20} {:3} {:3} {:6}'.format(a/b, a, b, a*b))
-
             # 255で割って正規化したやつを（現在のオブジェクト数）chとして代入
             ins[num-offset] = ins_temp / 255
+
+            root, ext = os.path.splitext(os.path.basename(fname))
+            num_list.append(int(root))
+
+        num_list.sort()
+        # print(num_list)
+        # print(len(num_list))
 
         masks = np.array(ins, dtype=np.uint8)
 
         ins_num = ins_num - offset
-
-        # print('type masks ', type(masks))
-        # print(masks.dtype)
-        # print(masks.shape)
-        # print(np.unique(masks))
-
+        # print(ins_num)
 
         # 各instance画像のbboxを求める
         bboxes = []
@@ -132,27 +124,38 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
             bboxes.append(bbox)
             # print((bbox[2]-bbox[0])*(bbox[3]-bbox[1]))
         bboxes = np.array(bboxes, dtype=np.float32)
+
         # print(bboxes.shape)
-        # print(ins_num)
-        # print(bboxes)
+
 
         # クラスラベル　全部１
         labels = np.zeros((ins_num), dtype=np.int32)
 
-        # print('type labels ', type(labels))
-        # print(labels.dtype)
+        # splineを作成
+        spline_list_src = []
+        fname = self.spline_path + self.img_names[i].rstrip('.png') + '.csv'
+        with open(fname, 'r') as f:
+            reader = csv.reader(f)
+            
+            for row in reader:
+                spline_list_src.append(list(map(int,row)))
 
-        # print(img.shape)
-        # print(bboxes.shape)
-        # print(labels.shape)
-        # print(masks.shape)
+        splines = []
+        for i in range(len(spline_list_src)//8):
+            if i in num_list:
+                splines_temp = []
+                for j in range(8):
+                    splines_temp.append(spline_list_src[i*8+j][2:4])
+                    # print(i, j, spline_list_src[i*8+j][2:4])
 
-        # print(bboxes.shape)
+                splines.append(splines_temp)
+
+        splines = np.array(splines, dtype=np.int32)
 
         if ins_num == 0:
             return self.get_example(i+1)
         else:
-            return tuple([img] + [bboxes, labels, masks])
+            return tuple([img] + [bboxes, labels, masks, splines])
 
     """
     floatで返す

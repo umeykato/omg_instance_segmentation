@@ -17,7 +17,7 @@ from chainer.training import extensions
 import fcn
 import numpy as np
 
-import chainer_mask_rcnn as cmr
+import chainer_mask_rcnn_spline as cmr
 
 
 def parse_args():
@@ -130,7 +130,7 @@ def train(args, train_data, test_data, evaluator_type):
     now = datetime.datetime.now()
     args.timestamp = now.isoformat()
     # args.out = osp.join(args.logs_dir, now.strftime('%Y%m%d_%H%M%S'))
-    args.out = '../../../result/omg_instance_segmentation/mask_rnn_log/' + now.strftime('%Y%m%d_%H%M%S')
+    args.out = '../../../result/omg_instance_segmentation/mask_rnn_log_spline/' + now.strftime('%Y%m%d_%H%M%S')
 
     args.batch_size = args.batch_size_per_gpu * args.n_gpu
 
