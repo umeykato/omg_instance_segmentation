@@ -7,10 +7,11 @@ class MaskRCNNTransform(object):
         self.train = train
 
     def __call__(self, in_data):
+        # print(len(in_data))
         if len(in_data) == 6:
             img, bbox, label, mask, crowd, area = in_data
-        elif len(in_data) == 4:
-            img, bbox, label, mask = in_data
+        elif len(in_data) == 5:
+            img, bbox, label, mask, spline = in_data
         else:
             raise ValueError
 
@@ -19,8 +20,8 @@ class MaskRCNNTransform(object):
         if not self.train:
             if len(in_data) == 6:
                 return img, bbox, label, mask, crowd, area
-            elif len(in_data) == 4:
-                return img, bbox, label, mask
+            elif len(in_data) == 5:
+                return img, bbox, label, mask, spline
             else:
                 raise ValueError
 
@@ -39,6 +40,9 @@ class MaskRCNNTransform(object):
         if len(mask) > 0:
             mask = transforms.resize(
                 mask, size=(o_H, o_W), interpolation=0)
+
+        if len(spline) > 0:
+            spline = spline * scale
 
         # # horizontally flip
         # img, params = transforms.random_flip(
@@ -62,4 +66,4 @@ class MaskRCNNTransform(object):
         else:
             mask = transforms.flip(mask, y_flip=params['y_flip'], x_flip=params['x_flip'])
 
-        return img, bbox, label, mask, scale, sizes
+        return img, bbox, label, mask, spline, scale, sizes
