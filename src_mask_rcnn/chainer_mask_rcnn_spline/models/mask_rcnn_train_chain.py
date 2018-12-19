@@ -74,7 +74,7 @@ class MaskRCNNTrainChain(chainer.Chain):
         self.loc_normalize_mean = mask_rcnn.loc_normalize_mean
         self.loc_normalize_std = mask_rcnn.loc_normalize_std
 
-    def __call__(self, imgs, bboxes, labels, masks, scales, sizes):
+    def __call__(self, imgs, bboxes, labels, masks, spline, scales, sizes):
         """Forward Faster R-CNN and calculate losses.
         mask rcnn のフォワード及びロス計算．faster rcnn をラップ
         Here are notations used.
@@ -242,8 +242,6 @@ class MaskRCNNTrainChain(chainer.Chain):
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_locs, gt_roi_locs, gt_roi_labels, self.roi_sigma)
 
-
-
         # print('loc')
         # print(roi_scores.shape)
         # print(roi_cls_locs.shape)
@@ -262,11 +260,13 @@ class MaskRCNNTrainChain(chainer.Chain):
         # print('gt_roi_labels', xp.where(gt_roi_labels == 2)[0].shape)
         # print('roi_scores', roi_scores.shape)
         # print('gt_roi_labels', gt_roi_labels.shape)
+
         roi_cls_loss = F.softmax_cross_entropy(roi_scores, gt_roi_labels)
 
         # Losses for outputs of mask branch
         # print('roi_masks', roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :])
         # print('gt_roi_masks', gt_roi_masks)
+
         roi_mask_loss = F.sigmoid_cross_entropy(
             roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :],
             gt_roi_masks)
