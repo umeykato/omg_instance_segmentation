@@ -159,7 +159,8 @@ class VGG16RoIHead(chainer.Chain):
             self.mask = L.Convolution2D(
                 256, n_fg_class, 1, initialW=mask_initialW)
 
-            # spline output
+            self.spline = L.Convolution2D(
+                256, 8, 1, initialW=mask_initialW)
 
 
         self.n_class = n_class
@@ -191,8 +192,9 @@ class VGG16RoIHead(chainer.Chain):
         if pred_mask:
             deconv6 = F.relu(self.deconv6(pool))
             roi_masks = self.mask(deconv6)
+            roi_spline = self.spline(deconv6)
 
-        return roi_cls_locs, roi_scores, roi_masks
+        return roi_cls_locs, roi_scores, roi_masks, roi_spline
 
 
 def _roi_align_2d_yx(x, indices_and_rois, outh, outw, spatial_scale,

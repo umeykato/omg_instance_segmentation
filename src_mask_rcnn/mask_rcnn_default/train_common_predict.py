@@ -432,7 +432,12 @@ def train(args, train_data, test_data, evaluator_type):
 
     predict_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_DIA/image'
     mask_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_DIA/label'
-    save_dir = './predict_DIA_noMask'
+    save_dir = '../../../result/predict_maskrcnn_other_individual'
+
+    try:
+        os.makedirs(save_dir)
+    except FileExistsError:
+        pass
 
     fnames = os.listdir(predict_dir)
 

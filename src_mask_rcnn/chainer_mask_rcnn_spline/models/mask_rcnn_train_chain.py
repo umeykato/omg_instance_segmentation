@@ -109,7 +109,8 @@ class MaskRCNNTrainChain(chainer.Chain):
             labels = labels.data
         if isinstance(scales, chainer.Variable):
             scales = scales.data
-        scales = cuda.to_cpu(scales)
+
+        scales = cuda.to_cpu(np.array(scales))
 
         batch_size, _, H, W = imgs.shape
         img_size = (H, W)
@@ -177,6 +178,7 @@ class MaskRCNNTrainChain(chainer.Chain):
         # print('3.8')
         # print(len(gt_roi_labels))
         # print(gt_roi_labels[0].shape)
+        print('gt_roi_masks', np.array(gt_roi_masks).shape)
         sample_rois = self.xp.concatenate(sample_rois, axis=0)
         sample_roi_indices = self.xp.concatenate(sample_roi_indices, axis=0)
         gt_roi_locs = self.xp.concatenate(gt_roi_locs, axis=0)
@@ -186,7 +188,9 @@ class MaskRCNNTrainChain(chainer.Chain):
         # print(features.shape)
         # print(sample_rois.shape)
         # print(sample_roi_indices.shape)
-        roi_cls_locs, roi_scores, roi_masks = self.mask_rcnn.head(
+        print(gt_roi_locs.shape)
+        print(gt_roi_labels.shape)
+        roi_cls_locs, roi_scores, roi_masks, roi_spline = self.mask_rcnn.head(
             features, sample_rois, sample_roi_indices)
 
         # print(roi_cls_locs.shape)
@@ -237,8 +241,11 @@ class MaskRCNNTrainChain(chainer.Chain):
 
         # Losses for outputs of the head.
         n_sample = len(roi_cls_locs)
-        roi_cls_locs = roi_cls_locs.reshape((n_sample, -1, 4))
+        print(roi_cls_locs.shape)
+        roi_cls_locs = roi_cls_locs.reshape((n_sample, -1, 4)) # (n_sample, n_cls, 4(h,w,y,x))
+        print(roi_cls_locs.shape)
         roi_locs = roi_cls_locs[self.xp.arange(n_sample), gt_roi_labels]
+        print(roi_locs.shape)
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_locs, gt_roi_locs, gt_roi_labels, self.roi_sigma)
 
@@ -258,14 +265,14 @@ class MaskRCNNTrainChain(chainer.Chain):
         # print('gt_roi_labels', xp.unique(gt_roi_labels))
         # print('gt_roi_labels', xp.where(gt_roi_labels == 2))
         # print('gt_roi_labels', xp.where(gt_roi_labels == 2)[0].shape)
-        # print('roi_scores', roi_scores.shape)
-        # print('gt_roi_labels', gt_roi_labels.shape)
+        print('roi_scores', roi_scores.shape)
+        print('gt_roi_labels', gt_roi_labels.shape)
 
         roi_cls_loss = F.softmax_cross_entropy(roi_scores, gt_roi_labels)
 
         # Losses for outputs of mask branch
-        # print('roi_masks', roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :])
-        # print('gt_roi_masks', gt_roi_masks)
+        print('roi_masks', roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :].shape) # (1024, 14, 14)
+        print('gt_roi_masks', gt_roi_masks.shape) # (1024, 14, 14)
 
         roi_mask_loss = F.sigmoid_cross_entropy(
             roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :],
@@ -307,3 +314,63 @@ def _fast_rcnn_loc_loss(pred_loc, gt_loc, gt_label, sigma):
     # Normalize by total number of negtive and positive rois.
     loc_loss /= xp.sum(gt_label >= 0)
     return loc_loss
+
+# 元論文のロス
+
+def _diversity_loss(pred, n_landmark, pool_size):
+        pred_pool = tf.nn.pool(pred, window_shape=[pool_size, pool_size], strides=[1, 1], pooling_type="AVG", padding="VALID")
+        # convert avg pool to sum pool
+        # pred_pool = pred_pool * float(pool_size) * float(pool_size)
+        pred_max = tf.reduce_max(pred_pool, axis=3)
+        pred_max_sum = tf.reduce_sum(pred_max, axis=[1, 2])
+        pred_max_sum = float(n_landmark) - pred_max_sum
+        pred_max_sum = tf.reduce_mean(pred_max_sum)
+        return pred_max_sum
+
+def _align_loss(predA, predB, deformation, n_landmarks):
+    
+
+    # compute the mean of landmark locations
+
+    batch_size = predA.get_shape()[0]
+    pred_size = predA.get_shape()[1]
+    index = tf.range(0, tf.cast(pred_size, tf.float32), delta=1, dtype=tf.float32)
+    index = tf.reshape(index, [pred_size, 1])
+
+    x_index = tf.tile(index, [1, pred_size])
+
+    index = tf.transpose(index)
+
+    y_index = tf.tile(index, [pred_size, 1])
+
+    x_index = tf.expand_dims(x_index, 2)
+    x_index = tf.expand_dims(x_index, 0)
+
+    y_index = tf.expand_dims(y_index, 2)
+    y_index = tf.expand_dims(y_index, 0)
+
+    x_index = tf.tile(x_index, [batch_size, 1, 1, n_landmarks])
+    y_index = tf.tile(y_index, [batch_size, 1, 1, n_landmarks])
+
+
+    u_norm2 = tf.pow(x_index, 2.) + tf.pow(y_index, 2.)
+    u_norm2 = u_norm2 * predA
+    loss_part1 = tf.reduce_sum(u_norm2, axis=[1, 2])
+
+    x_index_deformed = feature_warping2(x_index, deformation, padding=3)
+    y_index_defomred = feature_warping2(y_index, deformation, padding=3)
+    v_norm2 = tf.pow(x_index_deformed, 2.) + tf.pow(y_index_defomred, 2.)
+    v_norm2 = v_norm2 * predB
+    loss_part2 = tf.reduce_sum(v_norm2, axis=[1, 2])
+
+
+    loss_part3x = tf.reduce_sum(x_index * predA, axis=[1, 2])
+    loss_part3y = tf.reduce_sum(y_index * predA, axis=[1, 2])
+    loss_part4x = tf.reduce_sum(x_index_deformed * predB, axis=[1, 2])
+    loss_part4y = tf.reduce_sum(y_index_defomred * predB, axis=[1, 2])
+
+    loss_part3 = loss_part3x * loss_part4x + loss_part3y * loss_part4y
+    loss = loss_part1 + loss_part2 - 2. * loss_part3
+    loss = tf.reduce_mean(loss)
+
+    return loss

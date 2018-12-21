@@ -114,7 +114,7 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
         masks = np.array(ins, dtype=np.uint8)
 
         ins_num = ins_num - offset
-        # print(ins_num)
+        print(ins_num)
 
         # 各instance画像のbboxを求める
         bboxes = []

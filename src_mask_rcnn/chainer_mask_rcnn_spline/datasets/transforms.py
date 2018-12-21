@@ -55,6 +55,19 @@ class MaskRCNNTransform(object):
         # else:
         #     mask = transforms.flip(mask, x_flip=params['x_flip'])
 
+        # print(H,W)
+        # print(o_H, o_W)
+        # print(scale)
+
+        def flip_spline(spline, y_flip=False, x_flip=False):
+            if y_flip:
+                spline[:,:,1] = o_H - spline[:,:,1]
+
+            if x_flip:
+                spline[:,:,0] = o_W - spline[:,:,0]
+
+            return spline
+
         # horizontally and vartically flip
         img, params = transforms.random_flip(
             img, y_random=True, x_random=True, return_param=True)
@@ -65,5 +78,7 @@ class MaskRCNNTransform(object):
                 mask[None, :, :], y_flip=params['y_flip'], x_flip=params['x_flip'])[0]
         else:
             mask = transforms.flip(mask, y_flip=params['y_flip'], x_flip=params['x_flip'])
+
+        spline = flip_spline(spline, y_flip=params['y_flip'], x_flip=params['x_flip'])
 
         return img, bbox, label, mask, spline, scale, sizes
