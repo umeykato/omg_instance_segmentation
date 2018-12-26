@@ -118,20 +118,17 @@ class RegionProposalNetwork(chainer.Chain):
                 Its shape is :math:`(H W A, 4)`.
 
         """
-        # print('1')
+
         n, _, hh, ww = x.shape
-        # print('n ',n)
-        # print('2')
         anchor = _enumerate_shifted_anchor(
             self.xp.array(self.anchor_base), self.feat_stride, hh, ww)
 
         n_anchor = anchor.shape[0] // (hh*ww)    #add from DeNA mask rcnn
 
         h = F.relu(self.conv1(x))
-        # print('3')
+
         rpn_locs = self.loc(h)
         rpn_locs = rpn_locs.transpose((0, 2, 3, 1)).reshape((n, -1, 4))
-        # print('4')
         rpn_scores = self.score(h)
         rpn_scores = rpn_scores.transpose((0, 2, 3, 1))
 
@@ -141,30 +138,11 @@ class RegionProposalNetwork(chainer.Chain):
 
         rpn_scores = rpn_scores.reshape((n, -1))
 
-        # print("rpn_fg_scores.shape")
-        # print(rpn_fg_scores.shape)
-        # print(rpn_scores.shape)
 
-        # print('5')
         rois = list()
         roi_indices = list()
         # n = batchsize
         for i in range(n):
-            # bug
-            # print(rpn_locs[i].array.shape)
-            # print(rpn_locs[i].array)
-            # print(rpn_locs[i].array[:, 0::4])#ltx
-            # print(rpn_locs[i].array[:, 1::4])#lty
-            # print('rpn_locs[{}]'.format(i), rpn_locs[i].array[:, 2::4].max())#rbx
-            # if rpn_locs[i].array[:, 2::4].max() > 10:
-            #     rpn_locs[i].array[:, 2::4] = 1.
-            # if rpn_locs[i].array[:, 3::4].max() > 10:
-            #     rpn_locs[i].array[:, 3::4] = 1.
-            # print(rpn_locs[i].array[:, 3::4])#rby
-            # print(rpn_scores[i].array)
-            # print(anchor.shape)
-            # print(anchor)
-            # print(img_size)
             roi = self.proposal_layer(
                 # rpn_locs[i].array, rpn_scores[i].array, anchor, img_size,
                 rpn_locs[i].array, rpn_fg_scores[i].array, anchor, img_size, # add from DeNA mask rcnn
@@ -172,7 +150,7 @@ class RegionProposalNetwork(chainer.Chain):
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
             roi_indices.append(batch_index)
-        # print('6')
+
         rois = self.xp.concatenate(rois, axis=0)
         roi_indices = self.xp.concatenate(roi_indices, axis=0)
         return rpn_locs, rpn_scores, rois, roi_indices, anchor

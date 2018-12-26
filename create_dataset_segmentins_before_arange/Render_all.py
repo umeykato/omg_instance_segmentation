@@ -614,7 +614,7 @@ def main():
             pass
 
     # color semantic instance
-    for age in range(100, 1100, 100):
+    for age in range(1000, 1100, 100):
         # 保存先ディレクトリの指定と作成
         save_dir = img_dir + '/leaf_age{}'.format(age)
         makeDirectory(save_dir)
@@ -625,26 +625,26 @@ def main():
         stem_dname = obj_dir + '/stem_age{}'.format(age)
 
         render2color(obj_fname, save_dir)
-        render2semantic(obj_fname, save_dir)
+        # render2semantic(obj_fname, save_dir)
         # render2instance(obj_fname, save_dir)
-        render2instance(leaf_dname, stem_dname, save_dir)
+        # render2instance(leaf_dname, stem_dname, save_dir)
 
     # spline
-    for age in range(100, 1100, 100):
-        # オブジェクト数の確認
-        obj_num = len(os.listdir(ply_dir + '/leaf_age{}'.format(age))) // 4
-        for on in range(obj_num):
-            # 保存先ディレクトリの指定と作成
-            save_dir = img_dir + '/leaf_age{}'.format(age)
-            makeDirectory(save_dir)
+    # for age in range(100, 1100, 100):
+    #     # オブジェクト数の確認
+    #     obj_num = len(os.listdir(ply_dir + '/leaf_age{}'.format(age))) // 4
+    #     for on in range(obj_num):
+    #         # 保存先ディレクトリの指定と作成
+    #         save_dir = img_dir + '/leaf_age{}'.format(age)
+    #         makeDirectory(save_dir)
 
-            # 読み込みファイルの指定と読み込み
-            ply_fname = ply_dir + '/leaf_age{}/ControlPoints_{}.ply'.format(age, on)
-            elements = read_ply(ply_fname)
-            points_xyz = getValue('vertex', elements)
+    #         # 読み込みファイルの指定と読み込み
+    #         ply_fname = ply_dir + '/leaf_age{}/ControlPoints_{}.ply'.format(age, on)
+    #         elements = read_ply(ply_fname)
+    #         points_xyz = getValue('vertex', elements)
 
-            for pn in range(8):
-                render2spline(points_xyz[pn], save_dir, on, pn)
+    #         for pn in range(8):
+    #             render2spline(points_xyz[pn], save_dir, on, pn)
     # pass
 
 if __name__=='__main__':

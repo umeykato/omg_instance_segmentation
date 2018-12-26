@@ -599,7 +599,7 @@ def main():
     # root_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver3'
 
     if os.name == 'nt':
-        root_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
+        root_dir = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_simulate_100_sample'
     else:
         root_dir = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
 

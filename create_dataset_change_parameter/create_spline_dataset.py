@@ -97,8 +97,8 @@ def main():
     # adelWheat.growth_wheat_someage()
 
     if os.name == 'nt':
-        dataset_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
-    elif: os.name == 'posix'
+        dataset_path = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_simulate_100_sample'
+    elif os.name == 'posix':
         dataset_path = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/dataset_ver4'
 
     for i in range(100, 1100, 100):
@@ -108,7 +108,7 @@ def main():
             fname = dataset_path + '/obj/leaf_age{}/{}.obj'.format(i, j)
             save_dir = dataset_path + '/ply_render3d/leaf_age{}'.format(i)
             try:
-                os.mkdir(save_dir)
+                os.makedirs(save_dir)
             except:
                 pass
             split_text = os.path.splitext(fname)

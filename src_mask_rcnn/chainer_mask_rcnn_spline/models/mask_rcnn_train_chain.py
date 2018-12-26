@@ -22,6 +22,9 @@ from .utils import ProposalTargetCreator
 from chainercv.links.model.faster_rcnn.utils.anchor_target_creator import\
     AnchorTargetCreator
 
+from inspect import currentframe
+
+
 # ロス計算及びログのレポート
 class MaskRCNNTrainChain(chainer.Chain):
 
@@ -114,46 +117,25 @@ class MaskRCNNTrainChain(chainer.Chain):
 
         batch_size, _, H, W = imgs.shape
         img_size = (H, W)
-        # print(imgs.shape)
-        # print('2')
-        features = self.mask_rcnn.extractor(imgs)
-        # print(features.shape)
-        # print('2.5')
-        
-        # C:\Users\y_kato\Anaconda3\envs\chainer\lib\site-packages\chainercv\links\model/faster_rcnn\utils\loc2bbox.py:65: RuntimeWarning: overflow encountered in multiply
-        # h = xp.exp(dh) * src_height[:, xp.newaxis]
-        # C:\Users\y_kato\Anaconda3\envs\chainer\lib\site-packages\chainercv\links\model/faster_rcnn\utils\loc2bbox.py:66: RuntimeWarning: overflow encountered in multiply
-        # w = xp.exp(dw) * src_width[:, xp.newaxis]
 
+        # backborn forward
+        features = self.mask_rcnn.extractor(imgs)   # (2, 512, 14, 14)
 
-        # Region Proporsal Network
-        # 入力（特徴マップ，画像サイズ，スケールズ？）
-        # 出力（）
+        # Region Proporsal Network forward
+        # (2, R, 4)
+        # 
+        # 
+        # 
+        # 
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.mask_rcnn.rpn(
             features, img_size, scales)
-        # print(rpn_locs.shape)
-        # print(rpn_scores.shape)
-        # print(rois.shape)
-        # print(roi_indices.shape)
-        # print(anchor.shape)
 
-        # print('2.9')
         batch_indices = range(batch_size)
         sample_rois = []
         sample_roi_indices = []
         gt_roi_locs = []
         gt_roi_labels = []
         gt_roi_masks = []
-        # print('3')
-        
-        # C:\Users\y_kato\Anaconda3\envs\chainer\lib\site-packages\chainercv\utils/bbox/bbox_iou.py:43: RuntimeWarning: invalid value encountered in true_divide
-        # return area_i / (area_a[:, None] + area_b - area_i)
-        # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:132: RuntimeWarning: invalid value encountered in greater_equal
-        # pos_index = np.where(max_iou >= self.pos_iou_thresh)[0]
-        # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:140: RuntimeWarning: invalid value encountered in less
-        # neg_index = np.where((max_iou < self.neg_iou_thresh_hi) &
-        # ..\chainer_mask_rcnn\models\utils\proposal_target_creator.py:141: RuntimeWarning: invalid value encountered in greater_equal
-        # (max_iou >= self.neg_iou_thresh_lo))[0]
 
         # batch size times
         for batch_index, bbox, label, mask in \
@@ -169,56 +151,38 @@ class MaskRCNNTrainChain(chainer.Chain):
             sample_roi_indices.append(sample_roi_index)
             del sample_roi, sample_roi_index
             # サンプリングされたRoIの位置，サイズをGTに一致させるオフセットとスケール
-            # 
             gt_roi_locs.append(gt_roi_loc)
             # サンプリングされたRoIに割り当てられたラベル
             gt_roi_labels.append(gt_roi_label)
             gt_roi_masks.append(gt_roi_mask)
             del gt_roi_loc, gt_roi_label, gt_roi_mask
-        # print('3.8')
-        # print(len(gt_roi_labels))
-        # print(gt_roi_labels[0].shape)
-        print('gt_roi_masks', np.array(gt_roi_masks).shape)
+
         sample_rois = self.xp.concatenate(sample_rois, axis=0)
         sample_roi_indices = self.xp.concatenate(sample_roi_indices, axis=0)
         gt_roi_locs = self.xp.concatenate(gt_roi_locs, axis=0)
         gt_roi_labels = self.xp.concatenate(gt_roi_labels, axis=0)
-        gt_roi_masks = self.xp.concatenate(gt_roi_masks, axis=0)
-        # print('3.9')
-        # print(features.shape)
-        # print(sample_rois.shape)
-        # print(sample_roi_indices.shape)
-        print(gt_roi_locs.shape)
-        print(gt_roi_labels.shape)
-        roi_cls_locs, roi_scores, roi_masks, roi_spline = self.mask_rcnn.head(
+        gt_roi_masks = self.xp.concatenate(gt_roi_masks, axis=0) # (2, 512, 14, 14) -> (1024, 14, 14)
+
+        
+        # 
+        # 
+        # (1024)
+        # 
+        # 
+
+        # Head forward
+        roi_cls_locs, roi_scores, roi_masks, roi_splines = self.mask_rcnn.head(
             features, sample_rois, sample_roi_indices)
 
-        # print(roi_cls_locs.shape)
-        # print(roi_scores.shape)
-        # print(roi_masks.shape)
-
-        # print(type(imgs)) #list
-        # print(len(imgs))
-        # # print(type(imgs[0]))
-        # print(type(sizes)) #list
-        # print(len(sizes))
-        # # print(type(sizes[0]))
-        # print(type(scales)) #list
-        # print(len(scales))
-        # # print(type(imgs[0]))
+        print('spline : ', spline.shape)
+        print('roi_spline : ', roi_splines.shape)
 
 
-        # bboxes, masks, labels, scores = self.mask_rcnn.predict_prepared([imgs[0], imgs[1]], sizes, list(scales))
-
-
-        # print('4')
         # RPN losses
         gt_rpn_locs = []
         gt_rpn_labels = []
         for bbox, rpn_loc, rpn_score in zip(bboxes, rpn_locs, rpn_scores):
-            # print(bbox)
-            # print(rpn_loc)
-            # print(rpn_score)
+
             gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(
                 bbox, anchor, img_size)
             gt_rpn_locs.append(gt_rpn_loc)
@@ -229,64 +193,47 @@ class MaskRCNNTrainChain(chainer.Chain):
         gt_rpn_labels = self.xp.concatenate(gt_rpn_labels, axis=0)
         rpn_locs = F.concat(rpn_locs, axis=0)
         rpn_scores = F.concat(rpn_scores, axis=0)
+
         rpn_loc_loss = _fast_rcnn_loc_loss(
             rpn_locs, gt_rpn_locs, gt_rpn_labels, self.rpn_sigma)
-        # print('rpn_scores', rpn_scores)
-        # print('gt_rpn_scores', gt_rpn_labels)
-        # print('rpn_scores', rpn_scores.shape)
-        # # 37500,
-        # print('gt_rpn_scores', gt_rpn_labels.shape)
-
         rpn_cls_loss = F.sigmoid_cross_entropy(rpn_scores, gt_rpn_labels)
 
-        # Losses for outputs of the head.
+        # ROI losses
         n_sample = len(roi_cls_locs)
-        print(roi_cls_locs.shape)
         roi_cls_locs = roi_cls_locs.reshape((n_sample, -1, 4)) # (n_sample, n_cls, 4(h,w,y,x))
-        print(roi_cls_locs.shape)
         roi_locs = roi_cls_locs[self.xp.arange(n_sample), gt_roi_labels]
-        print(roi_locs.shape)
+
         roi_loc_loss = _fast_rcnn_loc_loss(
             roi_locs, gt_roi_locs, gt_roi_labels, self.roi_sigma)
-
-        # print('loc')
-        # print(roi_scores.shape)
-        # print(roi_cls_locs.shape)
-        # print(roi_locs.shape)
-        # print(gt_roi_locs.shape)
-        # print(gt_roi_labels.shape)
-        # print(gt_roi_masks.shape)
-        # for loc in roi_locs:
-        #     print(loc)
-
-        # print('roi_scores', roi_scores)
-        # print('gt_roi_labels', gt_roi_labels)
-        # print('gt_roi_labels', type(gt_roi_labels))
-        # print('gt_roi_labels', xp.unique(gt_roi_labels))
-        # print('gt_roi_labels', xp.where(gt_roi_labels == 2))
-        # print('gt_roi_labels', xp.where(gt_roi_labels == 2)[0].shape)
-        print('roi_scores', roi_scores.shape)
-        print('gt_roi_labels', gt_roi_labels.shape)
-
         roi_cls_loss = F.softmax_cross_entropy(roi_scores, gt_roi_labels)
 
-        # Losses for outputs of mask branch
-        print('roi_masks', roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :].shape) # (1024, 14, 14)
-        print('gt_roi_masks', gt_roi_masks.shape) # (1024, 14, 14)
+        print(roi_splines[np.arange(n_sample), gt_roi_labels - 1, :, :].shape)
+        print('gt_roi_labels : ', gt_roi_labels.shape)
+        print('roi_masks : ', roi_masks.shape)
+        print('gt_roi_masks : ', gt_roi_masks.shape)
 
+        # mask branch losses
+        # (1024, 14, 14)
+        # (1024, 14, 14)
         roi_mask_loss = F.sigmoid_cross_entropy(
             roi_masks[np.arange(n_sample), gt_roi_labels - 1, :, :],
             gt_roi_masks)
+        # (1)
 
-        # print(rpn_cls_loss, roi_loc_loss, roi_mask_loss)
+        # keypoint branch loss
+        # 
+        # 
+        # roi_spline_loss = F.softmax_cross_entropy(roi_splines, gt_roi_splines)
+
 
         loss = rpn_loc_loss + rpn_cls_loss + roi_loc_loss + roi_cls_loss + \
-            roi_mask_loss
+            roi_mask_loss # + roi_spline_loss
         chainer.reporter.report({'rpn_loc_loss': rpn_loc_loss,
                                  'rpn_cls_loss': rpn_cls_loss,
                                  'roi_loc_loss': roi_loc_loss,
                                  'roi_cls_loss': roi_cls_loss,
                                  'roi_mask_loss': roi_mask_loss,
+                                #  'roi_spline_loss': roi_spline_loss,
                                  'loss': loss},
                                 self)
         return loss

@@ -24,14 +24,12 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
     def __init__(self, test=False):
 
         if os.name == 'nt':
-            # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
             root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/train'
         elif os.name == 'posix':
             root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/mask_rcnn_dataset/train'
 
 
         if os.name == 'nt' and test:
-            # root = 'I:/ykato_git/datasets/oomugi_blender/dataset_ver3/dataset_SemInsSpline'
             root = 'I:/ykato_git/datasets/omg_instance_segmentation/dataset_ver4/test'
         elif os.name == 'posix' and test:
             root = '/home/demo/document/ykato_git/datasets/omg_instance_segmentation/mask_rcnn_dataset/test'
@@ -108,13 +106,11 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
             num_list.append(int(root))
 
         num_list.sort()
-        # print(num_list)
-        # print(len(num_list))
 
         masks = np.array(ins, dtype=np.uint8)
 
         ins_num = ins_num - offset
-        print(ins_num)
+        # print(ins_num)
 
         # 各instance画像のbboxを求める
         bboxes = []
@@ -140,10 +136,10 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
             for row in reader:
                 spline_list_src.append(list(map(int,row)))
 
-        splines = []
+        splines = [] # (葉の枚数, 8, 2)
         for i in range(len(spline_list_src)//8):
             if i in num_list:
-                splines_temp = []
+                splines_temp = [] # (8, 2)
                 for j in range(8):
                     splines_temp.append(spline_list_src[i*8+j][2:4])
                     # print(i, j, spline_list_src[i*8+j][2:4])
@@ -151,6 +147,12 @@ class OomugiDataset(chainer.dataset.DatasetMixin):
                 splines.append(splines_temp)
 
         splines = np.array(splines, dtype=np.int32)
+
+        # img       (3, h, w)
+        # bboxes    (n, h, w)
+        # labels    (n)
+        # masks     (n, 4)
+        # splines   (n, 8, 2)
 
         if ins_num == 0:
             return self.get_example(i+1)
